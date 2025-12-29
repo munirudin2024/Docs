@@ -1,0 +1,129 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_pgdb
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_DB: pgdb
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./pg_password.txt:/run/secrets/pg_password:ro
+    networks:
+      - internal_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pguser -d pgdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  rust:
+    image: rust:1.76-slim
+    container_name: rust_dev
+    hostname: rust-power
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./app-rust:/workspace
+    working_dir: /workspace
+    networks:
+      - internal_net
+    command: sleep infinity
+    restart: unless-stopped
+
+  kali:
+    build:
+      context: .
+      dockerfile: Dockerfile.kali
+    image: kali-pentest:latest
+    container_name: kali_lab
+    hostname: kali-tactical
+    networks:
+      - internal_net
+    cap_add:
+      - NET_ADMIN
+    stdin_open: true
+    tty: true
+    #command: tail -f /dev/null
+    restart: unless-stopped
+
+  bun:
+    image: oven/bun:0.6.13
+    container_name: bun_dev
+    user: "${UID:-1000}:${GID:-1000}"
+    networks:
+      - internal_net
+    volumes:
+      - ./app-bun:/workspace
+    working_dir: /workspace
+    command: sleep infinity
+    restart: unless-stopped
+
+  dotnet:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    container_name: dotnet_dev
+    user: "${UID:-1000}:${GID:-1000}"
+    networks:
+      - internal_net
+    volumes:
+      - ./app-dotnet:/workspace
+    working_dir: /workspace
+    command: sleep infinity
+    restart: unless-stopped
+
+  # ======= NEW: Neovim (terminal editor) =======
+  neovim:
+    build:
+      context: .
+      dockerfile: Dockerfile.neovim
+    image: neovim-dev:latest
+    container_name: neovim_dev
+    hostname: neovim-dev
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./app-rust:/workspace          # mount project(s) you edit
+      - ./dotfiles/nvim:/home/dev/.config/nvim:rw  # optional host config
+    working_dir: /workspace
+    networks:
+      - internal_net
+    stdin_open: true
+    tty: true
+    command: tail -f /dev/null
+    restart: unless-stopped
+
+  # ======= NEW: Firebase Studio / Emulator (firebase-tools) =======
+  firebase:
+    build:
+      context: .
+      dockerfile: Dockerfile.firebase
+    image: firebase-studio:latest
+    container_name: firebase_studio
+    hostname: firebase-studio
+    volumes:
+      - ./firebase:/workspace       # mount firebase project
+      - ~/.config/firebase:/home/dev/.config/firebase:rw  # optional for auth tokens
+    working_dir: /workspace
+    ports:
+      - "4000:4000"   # Emulator UI
+      - "8080:8080"   # Firestore emulator (default)
+      - "9099:9099"   # Auth emulator
+      - "5001:5001"   # Functions emulator
+      - "5000:5000"   # Hosting emulator
+    environment:
+      - TZ=Asia/Jakarta
+    networks:
+      - internal_net
+    stdin_open: true
+    tty: true
+    command: tail -f /dev/null
+    restart: unless-stopped
+
+networks:
+  internal_net:
+    driver: bridge
+
+volumes:
+  pgdata:
+

@@ -1,0 +1,11 @@
+Cara Install
+# Jika pakai Windows, download di 
+   https://cli.github.com/
+   # Buka terminal: 
+   gh auth login
+   # untuk menghubungkan ke akun GitHub kamu
+
+# Install Ekstensi Copilot:
+    gh extension install github/gh-copilot
+# Coba Langsung:
+    gh copilot suggest "tampilkan semua file .tsx"

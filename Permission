@@ -1,0 +1,76 @@
+docker compose stop
+docker compose start
+docker exec -it kali_lab bash
+
+# Memberikan izin akses ke folder app agar bisa ditulis oleh kontainer
+sudo chmod -R 777 /workspaces/Docs/app-rust /workspaces/Docs/app-bun /workspaces/Docs/app-dotnet /workspaces/Docs/app-ruby
+# Menggunakan 777 (semua orang bisa baca, tulis, eksekusi) memang berbahaya di lingkungan produksi karena meninggalkan "pintu terbuka" bagi siapa saja.
+
+# Uji Editor (Neovim) Kita tes apakah Neovim bisa berjalan dan mengedit file di folder yang sudah kita bagikan.
+docker exec -it neovim_dev nvim /workspace/test.txt
+# Cara Save & Exit (Jurus Keluar)
+Tekan tombol Esc (untuk memastikan kamu keluar dari mode ngetik/Insert mode).
+
+Ketik : (titik dua akan muncul di baris paling bawah).
+
+Ketik wq lalu tekan Enter.
+w = Write (Simpan)
+q = Quit (Keluar)
+Tips Cepat: Kalau kamu cuma mau keluar tanpa simpan perubahan (karena salah ketik banyak), tekan Esc lalu ketik :q! dan Enter.
+# Uji Jantung (Postgres & Healthcheck) Kita pastikan database siap menerima perintah tanpa harus masuk ke dalamnya.
+docker inspect -f '{{.State.Health.Status}}' postgres_pgdb
+#     Hasil: Harus keluar tulisan healthy. 
+#     Jika unhealthy, berarti ada masalah dengan kredensial di pg_password.txt.
+# Uji Alat Tempur (Kali & Metasploit) Mari kita panggil "otak" seranganmu.
+docker exec -it kali_lab msfconsole -q
+        Cara Tes: 
+        Di dalam msfconsole, ketik db_status. Jika muncul Connected to msf. Connection type: postgresql, berarti Metasploit kamu sudah punya database sendiri untuk menyimpan hasil hacking.
+# Uji Cloud (Firebase Studio/Emulator) Kita cek apakah CLI Firebase sudah siap digunakan
+docker exec -it firebase_studio firebase --version
+#       Hasil: Harus muncul angka versi (misal: 13.x.x).
+
+# Uji Konektivitas Antar-Sel (The Bridge Test) Ini yang paling krusial. Kita tes apakah Kali bisa melihat semua layanan lain.
+docker exec -it kali_lab nmap -sn 172.18.0.0/24
+(Catatan: Sesuaikan subnet IP jika berbeda, atau gunakan nama layanan)
+docker exec -it kali_lab ping -c 2 rust-power
+----------------------------------------------------------------------
+Apa yang terjadi jika salah satu gagal?
+Jika ada yang tidak muncul atau error, jangan panik. Itu artinya ada "sumbatan" kecil di konfigurasi.
+
+Sekarang, coba jalankan perintah nomor 3 (msfconsole). Apakah kamu berhasil masuk ke tampilan Metasploit tanpa error? Jika iya, kita akan langsung coba teknik Sliver untuk pertama kalinya.
+===============================================================================
+# Menutup Gerbang Permission (Hardening)
+Kita akan mengembalikan hak milik ke user spesifik dan mempersempit izin aksesnya. Di terminal utama (host), jalankan:
+
+# 1. Kembalikan kepemilikan ke user Codespace (UID 1000)
+sudo chown -R $USER:$USER /workspaces/Docs/
+# 2. Folder: Beri izin 755 (Pemilik bisa tulis, orang lain cuma bisa lihat/masuk)
+find /workspaces/Docs/ -type d -exec chmod 755 {} +
+# 3. File: Beri izin 644 (Pemilik bisa tulis, orang lain cuma bisa baca)
+find /workspaces/Docs/ -type f -exec chmod 644 {} +
+# 4. Khusus untuk secret file (Password Postgres), buat lebih ketat:
+chmod 600 /workspaces/Docs/pg_password.txt
+----------------------------------------------------------------------
+# 2. Verifikasi "Otak" Serangan (MSFconsole)
+docker exec -it kali_lab msfconsole -q
+----
+Di dalam msfconsole, lakukan cek ini:
+Ketik: db_status
+Harapan: Connected to msf...
+Ketik: hosts
+Harapan: Masih kosong, tapi ini tempat menyimpan hasil scanning nanti.
+-----------------------------------------------------------------------
+# 3. Persiapan Teknik Sliver (The Next Level)
+Sliver lebih berbahaya dan lebih modern dibanding Metasploit. Jika Metasploit adalah "meriam", Sliver adalah "agen rahasia".
+
+Cek apakah Sliver sudah siap di Kali kamu:
+Masuk ke Kali: docker exec -it kali_lab bash
+Cek binary-nya: ls -lh /opt/sliver atau which sliver-server
+
+Skenario Pertama Kita: Kita akan membuat sebuah implant (virus kecil untuk riset) di Kali, lalu kita kirim ke kontainer Rust (si korban). Jika berhasil, kamu akan bisa mengendalikan kontainer Rust dari Kali seolah-olah kamu duduk di depannya.
+----------------------------------------------------------------------
+# Jika Neovim sudah bisa menulis file (Permission Fixed), dan Metasploit/Sliver sudah menyala, kamu sudah siap melakukan siklus penuh:
+    1.Ngoding agen/implant pakai Neovim.
+    2.Compiling pakai kontainer Rust.
+    3.Exploiting pakai Metasploit dari Kali.
+    4.Controlling pakai Sliver.

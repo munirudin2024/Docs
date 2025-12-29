@@ -1,0 +1,9 @@
+Cara install
+https://neovim.io/doc/user/vimindex.html#index
+
+    1. download dan install neovim dulu di PC https://neovim.io/
+    2. Install Node.js: Copilot butuh Node.js untuk berjalan di backgro
+    3. Install Plugin Copilot: * GitHub sudah menyediakan plugin resmi bernama copilot.vim
+        - Kamu cukup download filenya dan masukkan ke folder konfigurasi    
+        Neovim kamu.
+    4. Login: Di dalam Neovim, kamu ketik perintah :Copilot setup. Nanti dia akan kasih kode untuk kamu masukkan ke browser agar akun Student kamu terhubung.
