@@ -1,0 +1,37 @@
+
+bun x @ionic/cli start
+bun create vite@latest
+bun add @ionic/react @ionic/react-router ionicons
+bun run dev --host
+# TOUCH --------------------------------------------
+touch file.txt                         # buat file kosong
+# ECHO <si penulis pendek>---------------------------
+echo "tulis teks disini" > file.txt    # menimpa isi
+echo "tulis teks disini" >> file.txt   # menambah isi
+# CAT <si tukang salin>-----------------------------
+cat <<EOF > halo.txt
+ini baris 1
+ini baris 2
+dunia sudah cerah
+EOF                             # menulis/copy file
+
+cat file.txt                    # melihat pendek
+less file.txt                   # melihat panjang
+head -n 5 file.txt              # lihat 5 baris pertama
+tail -n 5 file.txt              # lihat 5 baris terahir
+tail -f file.txt                # lihat live/follow
+# tapi harus masuk server web dulu
+# 1.Memantau Pengunjung (Spying)
+tail -f /var/log/nginx/access.log
+# 2. "Defacing" Halus - menyelipkan kode kecil ke file HTML
+echo "<script>alert('Server ini dalam pantauan');</script>" >> index.html
+# 3. Komunikasi Lewat Webshell
+#   Setelah masuk, peretas sering menanam Webshell 
+#   (sebuah file .php, .js, atau .py yang fungsinya jadi terminal di dalam web). 
+#   Lewat situ, mereka bisa menjalankan perintah cat, echo, dan tail tadi 
+#   langsung dari browser tanpa perlu SSH.
+#   -----------------------------------------------
+#   Karena kamu sekarang tahu cara peretas bekerja, kamu jadi tahu cara melawannya:
+#   Lihat Log: Kalau kamu rajin tail -f di log server kamu sendiri, kamu bisa melihat serangan Brute Force (percobaan login berkali-kali) saat itu juga dan langsung memblokirnya.
+#   Cek Integritas: Kalau file kamu yang harusnya cuma 10 baris tiba-tiba jadi 11 baris (karena di->> oleh peretas), kamu akan langsung curiga.
+#   -----------------------------------------------

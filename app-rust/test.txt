@@ -1,5 +1,0 @@
-monyethaha:wq
-
-(:wq)
-q
-etik sesuatu, lalu simpan (:wq). Jika filetest.txt muncul di folder lokal kamu, berarti sinkronisasi volume berhasil. 

@@ -1,0 +1,2 @@
+compile: rust namafile.rs 
+jalankan: ./namafile

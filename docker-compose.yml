@@ -24,7 +24,7 @@ services:
     image: rust:1.76-slim
     container_name: rust_dev
     hostname: rust-power
-    user: "${UID:-1000}:${GID:-1000}"
+    user: "${UID:-1000}:${GID:-1000}" #Docker akan menjalankan kontainer sebagai root (super admin)
     volumes:
       - ./app-rust:/workspace
     working_dir: /workspace
@@ -50,7 +50,8 @@ services:
     restart: unless-stopped
 
   bun:
-    image: oven/bun:0.6.13
+    #image: oven/bun:0.6.13
+    image: oven/bun:latest  # Mengambil versi paling baru secara otomatis
     container_name: bun_dev
     user: "${UID:-1000}:${GID:-1000}"
     networks:
