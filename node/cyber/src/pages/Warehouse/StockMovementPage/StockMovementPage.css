@@ -1,0 +1,193 @@
+.stock-movement-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.movement-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-box {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border-left: 4px solid;
+}
+
+.stat-box.in {
+  border-left-color: #2ecc71;
+}
+
+.stat-box.out {
+  border-left-color: #e74c3c;
+}
+
+.stat-box.transfer {
+  border-left-color: #3498db;
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: #f8f9fa;
+}
+
+.stat-details h4 {
+  margin: 0 0 0.5rem;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.25rem;
+}
+
+.stat-period {
+  font-size: 0.85rem;
+  color: #95a5a6;
+}
+
+.movement-timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.movement-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ecf0f1;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.timeline-badge {
+  position: absolute;
+  left: -2.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  background: white;
+  border: 3px solid;
+  z-index: 1;
+}
+
+.timeline-badge.in {
+  border-color: #2ecc71;
+  background: #d5f4e6;
+}
+
+.timeline-badge.out {
+  border-color: #e74c3c;
+  background: #fadbd8;
+}
+
+.timeline-badge.transfer {
+  border-color: #3498db;
+  background: #ebf5fb;
+}
+
+.timeline-badge.adjustment {
+  border-color: #95a5a6;
+  background: #ecf0f1;
+}
+
+.timeline-content {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-left: 2rem;
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.timeline-header h4 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.timeline-date {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.timeline-body p {
+  margin: 0.5rem 0;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.qty-in {
+  color: #2ecc71;
+  font-weight: 700;
+}
+
+.qty-out {
+  color: #e74c3c;
+  font-weight: 700;
+}
+
+.qty-transfer {
+  color: #3498db;
+  font-weight: 700;
+}
+
+.qty-adjustment {
+  color: #95a5a6;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .movement-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .movement-timeline {
+    padding-left: 1.5rem;
+  }
+
+  .timeline-badge {
+    left: -2rem;
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .timeline-content {
+    margin-left: 1.5rem;
+  }
+}

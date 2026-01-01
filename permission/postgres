@@ -1,0 +1,15 @@
+# Di Stack
+===============================================
+# Cari nama container dulu (ada random ID)
+docker ps | grep postgres
+# cek nama container postgres yang aktif sekarang:
+docker ps --filter "name=mystack_postgres" --format "{{.ID}} {{.Names}}"
+docker exec -it mystack_postgres.1.d6m1b1kg0xbmz7tuqgz7u5xjk psql -U pguser -d pgdb -c "\dt"
+# Atau langsung pakai service
+docker exec -it $(docker ps -q -f name=mystack_postgres) psql -U pguser -d pgdb
+
+
+Di Compose:
+===============================================
+# Nama container fixed
+docker exec -it postgres_pgdb psql -U pguser -d pgdb

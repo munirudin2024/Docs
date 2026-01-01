@@ -1,8 +1,15 @@
 
-bun x @ionic/cli start
-bun create vite@latest
-bun add @ionic/react @ionic/react-router ionicons
+# vite-------------------------------------
+npm create vite@latest cyber -- --template react-ts
+bun create vite@latest cyber --template react-ts
+cd cyber
+npm i
+npm i @ionic/react @ionic/react-router ionicons
+bun i @ionic/react @ionic/react-router ionicons
+npm run dev
 bun run dev --host
+
+
 # TOUCH --------------------------------------------
 touch file.txt                         # buat file kosong
 # ECHO <si penulis pendek>---------------------------

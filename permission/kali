@@ -1,5 +1,3 @@
-docker compose stop
-docker compose start
 docker exec -it kali_lab bash
 
 # Memberikan izin akses ke folder app agar bisa ditulis oleh kontainer

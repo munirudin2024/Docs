@@ -1,0 +1,36 @@
+
+/workspaces/Docs/docker-compose.yml
+==================================
+docker compose up -d
+docker compose stop
+docker compose start
+
+/workspaces/Docs/docker-stack.yml
+==================================
+docker stack deploy
+docker stack ps mystack                 # Lihat status stack
+docker service ls                       # Lihat services
+docker service logs mystack_postgres    # Lihat logs service
+docker stack rm mystack                 # Hapus stack (jika perlu)
+
+Jika mau matikan Swarm dan kembali ke compose:
+===============================================
+docker stack rm mystack
+docker swarm leave --force
+docker compose up -d
+
+Dari Compose → Stack (ke Swarm):
+===============================================
+docker compose down
+docker swarm init
+docker stack deploy -c docker-stack.yml mystack
+
+Bolak-balik cepat tanpa Swarm leave:
+===============================================
+# Stack aktif → Compose
+docker stack rm mystack
+docker compose up -d
+
+# Compose aktif → Stack
+docker compose down
+docker stack deploy -c docker-stack.yml mystack
