@@ -1,12 +1,13 @@
 import './Button.css';
 
-interface ButtonProps {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   type?: 'button' | 'submit' | 'reset';
   onClick?: () => void;
   children: React.ReactNode;
   disabled?: boolean;
   variant?: 'primary' | 'secondary';
   fullWidth?: boolean;
+  className?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -15,14 +16,19 @@ export const Button: React.FC<ButtonProps> = ({
   children,
   disabled = false,
   variant = 'primary',
-  fullWidth = false
+  fullWidth = false,
+  className = '',
+  ...rest
 }) => {
+  const buttonClass = `btn btn-${variant} ${fullWidth ? 'btn-full-width' : ''} ${className}`;
+  
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`btn btn-${variant} ${fullWidth ? 'btn-full-width' : ''}`}
+      className={buttonClass}
+      {...rest}
     >
       {children}
     </button>

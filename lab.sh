@@ -9,9 +9,9 @@ NC='\033[0m' # No Color
 
 while true; do
   clear
-  echo -e "${BLUE}╔════════════════════════════════════╗${NC}"
-  echo -e "${BLUE}║    🚀 CYBER LAB GATEWAY 🚀        ║${NC}"
-  echo -e "${BLUE}╚════════════════════════════════════╝${NC}"
+  echo -e "${BLUE}╔═════════════════════════════╗${NC}"
+  echo -e "${BLUE}║      CYBER LAB GATEWAY      ║${NC}"
+  echo -e "${BLUE}╚═════════════════════════════╝${NC}"
   echo ""
   echo -e "${GREEN}Kontainer yang tersedia:${NC}"
   echo "1) Bun (Frontend/Vite) 📦"

@@ -65,7 +65,7 @@ export const LoginPage: React.FC = () => {
               type="text"
               placeholder="Email"
               value={formData.username}
-              onChange={(value) => handleInputChange('username', value)}
+              onChange={(e) => handleInputChange('username', e.target.value)}
               icon="user"
             />
 
@@ -73,7 +73,7 @@ export const LoginPage: React.FC = () => {
               type="password"
               placeholder="Password"
               value={formData.password}
-              onChange={(value) => handleInputChange('password', value)}
+              onChange={(e) => handleInputChange('password', e.target.value)}
               icon="password"
               showPasswordToggle
             />

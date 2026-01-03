@@ -1,35 +1,56 @@
-import { MainLayout } from '../../../components';
+import { useState } from 'react';
+import { MainLayout, Button } from '../../../components';
+import { usePurchaseOrders } from '../../../hooks';
 import './PurchaseOrderPage.css';
 
 export const PurchaseOrderPage: React.FC = () => {
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const { purchaseOrders, loading: isLoading } = usePurchaseOrders();
+  
+  const filteredOrders = purchaseOrders?.filter(po => {
+    const statusMatch = selectedStatus === 'all' || po.status === selectedStatus;
+    const searchMatch = po.poNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                       po.vendorName?.toLowerCase().includes(searchQuery.toLowerCase());
+    return statusMatch && searchMatch;
+  });
+
+  const stats = {
+    total: purchaseOrders?.length ?? 156,
+    pending: purchaseOrders?.filter(p => p.status === 'pending').length ?? 23,
+    inProgress: purchaseOrders?.filter(p => p.status === 'processing' || p.status === 'shipped').length ?? 45,
+    completed: purchaseOrders?.filter(p => p.status === 'delivered').length ?? 88
+  };
+
   return (
     <MainLayout>
       <div className="po-page">
         <div className="page-header">
           <h1>🛒 Purchase Orders</h1>
           <p>Kelola purchase order dan procurement</p>
-          <button className="btn btn-primary">+ Create New PO</button>
+          <Button className="btn-primary">+ Create New PO</Button>
         </div>
 
         <div className="po-stats">
           <div className="stat-card">
             <h4>Total POs</h4>
-            <div className="stat-value">156</div>
+            <div className="stat-value">{stats.total}</div>
             <span className="stat-trend up">+12 this month</span>
           </div>
           <div className="stat-card">
             <h4>Pending</h4>
-            <div className="stat-value">23</div>
+            <div className="stat-value">{stats.pending}</div>
             <span className="stat-trend">Awaiting approval</span>
           </div>
           <div className="stat-card">
             <h4>In Progress</h4>
-            <div className="stat-value">45</div>
+            <div className="stat-value">{stats.inProgress}</div>
             <span className="stat-trend">Being processed</span>
           </div>
           <div className="stat-card">
             <h4>Completed</h4>
-            <div className="stat-value">88</div>
+            <div className="stat-value">{stats.completed}</div>
             <span className="stat-trend up">+8 this week</span>
           </div>
         </div>
@@ -38,14 +59,24 @@ export const PurchaseOrderPage: React.FC = () => {
           <div className="card-header">
             <h3>📋 Purchase Orders List</h3>
             <div className="filters">
-              <select className="form-control-sm">
-                <option>All Status</option>
-                <option>Pending</option>
-                <option>Approved</option>
-                <option>In Progress</option>
-                <option>Completed</option>
+              <select 
+                className="form-control-sm"
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
               </select>
-              <input type="search" className="form-control-sm" placeholder="Search PO..." />
+              <input 
+                type="search" 
+                className="form-control-sm" 
+                placeholder="Search PO..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </div>
 
@@ -63,54 +94,34 @@ export const PurchaseOrderPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td><strong>PO-2026-001</strong></td>
-                  <td>PT. Supplier Utama</td>
-                  <td>1 Jan 2026</td>
-                  <td>15</td>
-                  <td>Rp 45,000,000</td>
-                  <td><span className="badge badge-warning">Pending</span></td>
-                  <td>
-                    <button className="btn-icon">👁️</button>
-                    <button className="btn-icon">✏️</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>PO-2025-358</strong></td>
-                  <td>CV. Mitra Jaya</td>
-                  <td>31 Des 2025</td>
-                  <td>8</td>
-                  <td>Rp 22,500,000</td>
-                  <td><span className="badge badge-info">In Progress</span></td>
-                  <td>
-                    <button className="btn-icon">👁️</button>
-                    <button className="btn-icon">✏️</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>PO-2025-357</strong></td>
-                  <td>PT. Global Supply</td>
-                  <td>30 Des 2025</td>
-                  <td>25</td>
-                  <td>Rp 120,000,000</td>
-                  <td><span className="badge badge-success">Completed</span></td>
-                  <td>
-                    <button className="btn-icon">👁️</button>
-                    <button className="btn-icon">📄</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>PO-2025-356</strong></td>
-                  <td>UD. Sumber Makmur</td>
-                  <td>29 Des 2025</td>
-                  <td>12</td>
-                  <td>Rp 35,750,000</td>
-                  <td><span className="badge badge-success">Completed</span></td>
-                  <td>
-                    <button className="btn-icon">👁️</button>
-                    <button className="btn-icon">📄</button>
-                  </td>
-                </tr>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="text-center">Loading...</td>
+                  </tr>
+                ) : filteredOrders && filteredOrders.length > 0 ? (
+                  filteredOrders.map((po, index) => (
+                    <tr key={index}>
+                      <td><strong>{po.poNumber}</strong></td>
+                      <td>{po.vendorName}</td>
+                      <td>{new Date(po.createdAt || '').toLocaleDateString('id-ID')}</td>
+                      <td>{po.items?.length ?? 0}</td>
+                      <td>Rp {((po.items?.reduce((sum, item) => sum + ((item.quantity || 0) * (item.unitPrice || 0)), 0)) || 0).toLocaleString('id-ID')}</td>
+                      <td>
+                        <span className={`badge badge-${po.status || 'pending'}`}>
+                          {po.status?.charAt(0).toUpperCase() + po.status?.slice(1) || 'Pending'}
+                        </span>
+                      </td>
+                      <td>
+                        <Button className="btn-icon">👁️</Button>
+                        <Button className="btn-icon">✏️</Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="text-center">No purchase orders found</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

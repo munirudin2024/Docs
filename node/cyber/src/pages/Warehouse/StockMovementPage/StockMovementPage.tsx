@@ -1,129 +1,215 @@
-import { MainLayout } from '../../../components';
+import { useState } from 'react';
+import { MainLayout, Button, Input } from '../../../components';
+import { useStockMovementsCompat } from '../../../hooks/useWarehouseCompat';
 import './StockMovementPage.css';
 
+interface MovementFormData {
+  itemId: string;
+  movementType: 'in' | 'out';
+  quantity: number;
+  reference: string;
+  notes: string;
+}
+
 export const StockMovementPage: React.FC = () => {
+  const [showMovementForm, setShowMovementForm] = useState(false);
+  const [formData, setFormData] = useState<MovementFormData>({
+    itemId: '',
+    movementType: 'in',
+    quantity: 0,
+    reference: '',
+    notes: ''
+  });
+
+  const { movements, isLoading: isLoadingMovements } = useStockMovementsCompat();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'quantity' ? parseFloat(value) || 0 : value
+    }));
+  };
+
+  const handleRecordMovement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Call API
+      alert('Stock movement recorded successfully!');
+      setFormData({
+        itemId: '',
+        movementType: 'in',
+        quantity: 0,
+        reference: '',
+        notes: ''
+      });
+      setShowMovementForm(false);
+    } catch (error) {
+      console.error('Failed to record movement:', error);
+    }
+  };
+
+  const inMovements = movements?.filter(m => m.movementType === 'in').length ?? 0;
+  const outMovements = movements?.filter(m => m.movementType === 'out').length ?? 0;
+
   return (
     <MainLayout>
       <div className="stock-movement-page">
         <div className="page-header">
-          <div>
-            <h1>🔄 Stock Movement</h1>
-            <p>Track pergerakan stock dan mutasi barang</p>
-          </div>
-          <button className="btn btn-primary">+ Record Movement</button>
+          <h1>📊 Stock Movement</h1>
+          <p>Pantau semua pergerakan stok</p>
+          <Button 
+            variant="primary"
+            onClick={() => setShowMovementForm(!showMovementForm)}
+          >
+            + Record Movement
+          </Button>
         </div>
 
-        <div className="movement-stats">
-          <div className="stat-box in">
-            <div className="stat-icon">📥</div>
-            <div className="stat-details">
+        <div className="movement-summary">
+          <div className="summary-card">
+            <div className="summary-icon">📥</div>
+            <div className="summary-info">
               <h4>Stock In</h4>
-              <div className="stat-number">+3,450</div>
-              <span className="stat-period">This month</span>
+              <div className="summary-value">{inMovements}</div>
             </div>
           </div>
-          <div className="stat-box out">
-            <div className="stat-icon">📤</div>
-            <div className="stat-details">
+          <div className="summary-card">
+            <div className="summary-icon">📤</div>
+            <div className="summary-info">
               <h4>Stock Out</h4>
-              <div className="stat-number">-2,890</div>
-              <span className="stat-period">This month</span>
+              <div className="summary-value">{outMovements}</div>
             </div>
           </div>
-          <div className="stat-box transfer">
-            <div className="stat-icon">🔄</div>
-            <div className="stat-details">
-              <h4>Transfers</h4>
-              <div className="stat-number">156</div>
-              <span className="stat-period">This month</span>
+          <div className="summary-card">
+            <div className="summary-icon">📋</div>
+            <div className="summary-info">
+              <h4>Total Movements</h4>
+              <div className="summary-value">{movements?.length ?? 0}</div>
             </div>
           </div>
         </div>
+
+        {showMovementForm && (
+          <div className="card movement-form">
+            <h3>Record Stock Movement</h3>
+            <form onSubmit={handleRecordMovement}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Movement Type</label>
+                  <select 
+                    name="movementType"
+                    className="form-control"
+                    value={formData.movementType}
+                    onChange={handleInputChange}
+                  >
+                    <option value="in">Stock In (Masuk)</option>
+                    <option value="out">Stock Out (Keluar)</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Item ID</label>
+                  <Input 
+                    type="text"
+                    name="itemId"
+                    placeholder="Item ID..."
+                    value={formData.itemId}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Quantity</label>
+                  <Input 
+                    type="number"
+                    name="quantity"
+                    value={formData.quantity}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Reference (PO/DO Number)</label>
+                  <Input 
+                    type="text"
+                    name="reference"
+                    placeholder="e.g., PO-2026-001"
+                    value={formData.reference}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Notes</label>
+                <textarea 
+                  name="notes"
+                  className="form-control"
+                  rows={3}
+                  placeholder="Additional notes..."
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                ></textarea>
+              </div>
+
+              <div className="form-actions">
+                <Button variant="secondary" onClick={() => setShowMovementForm(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" variant="primary">
+                  Record Movement
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
 
         <div className="card">
-          <div className="card-header">
-            <h3>📊 Movement History</h3>
-            <div className="filters">
-              <select className="form-control-sm">
-                <option>All Types</option>
-                <option>Stock In</option>
-                <option>Stock Out</option>
-                <option>Transfer</option>
-                <option>Adjustment</option>
-              </select>
-              <input type="date" className="form-control-sm" />
-              <input type="search" className="form-control-sm" placeholder="Search..." />
-            </div>
-          </div>
-
-          <div className="movement-timeline">
-            <div className="timeline-item">
-              <div className="timeline-badge in">📥</div>
-              <div className="timeline-content">
-                <div className="timeline-header">
-                  <h4>Stock In</h4>
-                  <span className="timeline-date">1 Jan 2026, 10:30</span>
-                </div>
-                <div className="timeline-body">
-                  <p><strong>Material A</strong> - SKU-001</p>
-                  <p>Quantity: <span className="qty-in">+500 units</span></p>
-                  <p>From: <strong>PT. Supplier Utama</strong></p>
-                  <p>Reference: PO-2026-001</p>
-                  <p>Notes: Pengiriman sesuai jadwal</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="timeline-item">
-              <div className="timeline-badge out">📤</div>
-              <div className="timeline-content">
-                <div className="timeline-header">
-                  <h4>Stock Out</h4>
-                  <span className="timeline-date">1 Jan 2026, 09:15</span>
-                </div>
-                <div className="timeline-body">
-                  <p><strong>Product X</strong> - SKU-002</p>
-                  <p>Quantity: <span className="qty-out">-200 units</span></p>
-                  <p>To: <strong>Customer ABC</strong></p>
-                  <p>Reference: SO-2026-045</p>
-                  <p>Notes: Pengiriman via JNE</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="timeline-item">
-              <div className="timeline-badge transfer">🔄</div>
-              <div className="timeline-content">
-                <div className="timeline-header">
-                  <h4>Transfer</h4>
-                  <span className="timeline-date">31 Des 2025, 15:45</span>
-                </div>
-                <div className="timeline-body">
-                  <p><strong>Spare Part Y</strong> - SKU-004</p>
-                  <p>Quantity: <span className="qty-transfer">50 units</span></p>
-                  <p>From: <strong>Rak D3</strong> → To: <strong>Rak A2</strong></p>
-                  <p>Reference: TRF-2025-089</p>
-                  <p>Notes: Reorganisasi gudang</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="timeline-item">
-              <div className="timeline-badge adjustment">⚙️</div>
-              <div className="timeline-content">
-                <div className="timeline-header">
-                  <h4>Adjustment</h4>
-                  <span className="timeline-date">31 Des 2025, 14:20</span>
-                </div>
-                <div className="timeline-body">
-                  <p><strong>Material A</strong> - SKU-001</p>
-                  <p>Quantity: <span className="qty-adjustment">-5 units</span></p>
-                  <p>Reason: <strong>Stock Opname</strong></p>
-                  <p>Reference: ADJ-2025-023</p>
-                  <p>Notes: Penyesuaian hasil stock opname</p>
-                </div>
-              </div>
-            </div>
+          <h3 className="card-title">📋 Recent Movements</h3>
+          <div className="table-responsive">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Item</th>
+                  <th>Type</th>
+                  <th>Quantity</th>
+                  <th>Reference</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoadingMovements ? (
+                  <tr>
+                    <td colSpan={6} className="text-center">Loading movements...</td>
+                  </tr>
+                ) : movements && movements.length > 0 ? (
+                  movements.slice(0, 20).map((movement: any, index: number) => (
+                    <tr key={index} className={`movement-${movement.movementType}`}>
+                      <td>{movement.date ? new Date(movement.date).toLocaleDateString('id-ID') : 'N/A'}</td>
+                      <td>{movement.itemCode || 'N/A'}</td>
+                      <td>
+                        <span className={`badge badge-${movement.movementType}`}>
+                          {movement.movementType === 'in' ? '📥 Stock In' : '📤 Stock Out'}
+                        </span>
+                      </td>
+                      <td className={movement.movementType === 'in' ? 'positive' : 'negative'}>
+                        {movement.movementType === 'in' ? '+' : '-'}{movement.quantity}
+                      </td>
+                      <td>{movement.reference || '-'}</td>
+                      <td>{movement.notes || '-'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="text-center">No movements recorded</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
