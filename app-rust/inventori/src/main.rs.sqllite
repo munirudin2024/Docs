@@ -1,0 +1,101 @@
+use rusqlite::{Connection, Result};
+use chrono::Local;
+use tabled::{Table, Tabled};
+
+#[derive(Tabled)]
+struct LogRow {
+    #[tabled(rename = "ID")]
+    id: i32,
+    #[tabled(rename = "Barang")]
+    item_name: String,
+    #[tabled(rename = "Tipe")]
+    t_type: String,
+    #[tabled(rename = "Qty")]
+    qty: i32,
+    #[tabled(rename = "Peminta")]
+    requester: String,
+    #[tabled(rename = "Petugas")]
+    servant: String,
+    #[tabled(rename = "Waktu")]
+    time: String,
+}
+
+fn main() -> Result<()> {
+    let conn = Connection::open("inventory.db")?;
+    setup_db(&conn)?;
+
+    println!("=== APLIKASI INVENTORY TERMINAL RUST ===");
+    
+    // --- CONTOH PENGGUNAAN FITUR ---
+    
+    // 1. Tambah Stok (Barang Masuk)
+    // format: record_in(&conn, "NAMA_BARANG", JUMLAH, "PETUGAS")
+    record_transaction(&conn, "Kabel LAN", "IN", 50, "Gudang Pusat", "Admin_Andi")?;
+    
+    // 2. Barang Keluar
+    // format: record_out(&conn, "NAMA_BARANG", JUMLAH, "PEMINTA", "PETUGAS")
+    record_transaction(&conn, "Kabel LAN", "OUT", 5, "Budi_IT", "Admin_Andi")?;
+
+    // 3. Tampilkan Laporan (Silakan buka/tutup komentar di bawah untuk coba filter)
+    println!("\n--- LAPORAN TRANSAKSI HARI INI ---");
+    show_report(&conn, "SELECT t.id, i.name, t.type, t.quantity, t.requester, t.servant, t.created_at 
+                        FROM transactions t JOIN items i ON t.item_id = i.id 
+                        WHERE date(t.created_at) = date('now')")?;
+
+    Ok(())
+}
+
+fn setup_db(conn: &Connection) -> Result<()> {
+    conn.execute("CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, name TEXT UNIQUE, stock INTEGER)", [])?;
+    conn.execute("CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY, 
+        item_id INTEGER, 
+        type TEXT, 
+        quantity INTEGER, 
+        requester TEXT, 
+        servant TEXT, 
+        created_at DATETIME)", [])?;
+    Ok(())
+}
+
+fn record_transaction(conn: &Connection, item: &str, t_type: &str, qty: i32, req: &str, srv: &str) -> Result<()> {
+    let now = Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+    
+    // Pastikan barang ada di tabel items (Upsert)
+    conn.execute("INSERT OR IGNORE INTO items (name, stock) VALUES (?1, 0)", [item])?;
+    
+    // Masukkan log transaksi
+    conn.execute(
+        "INSERT INTO transactions (item_id, type, quantity, requester, servant, created_at) 
+         VALUES ((SELECT id FROM items WHERE name = ?1), ?2, ?3, ?4, ?5, ?6)",
+        (item, t_type, qty, req, srv, now),
+    )?;
+
+    println!("✅ Berhasil: {} {} {} oleh {}", t_type, qty, item, srv);
+    Ok(())
+}
+
+fn show_report(conn: &Connection, query: &str) -> Result<()> {
+    let mut stmt = conn.prepare(query)?;
+    let rows = stmt.query_map([], |row| {
+        Ok(LogRow {
+            id: row.get(0)?,
+            item_name: row.get(1)?,
+            t_type: row.get(2)?,
+            qty: row.get(3)?,
+            requester: row.get(4)?,
+            servant: row.get(5)?,
+            time: row.get(6)?,
+        })
+    })?;
+
+    let mut data = Vec::new();
+    for row in rows { data.push(row?); }
+    
+    if data.is_empty() {
+        println!("(Tidak ada data)");
+    } else {
+        println!("{}", Table::new(data).to_string());
+    }
+    Ok(())
+}

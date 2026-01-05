@@ -1,0 +1,24 @@
+═══════════════════════════════════════════════════════
+LAPORAN INVENTORI PPIC
+Generated: 2026-01-05 04:51:07
+═══════════════════════════════════════════════════════
+
+| ID  | Kode     | Barang       | Tipe | Jumlah | Stok | Requester/PO | Role     | Petugas | Lokasi | Tanggal            |
+|-----|----------|--------------|------|--------|------|--------------|----------|--------|--------|--------------------|
+|  13 | SPA2     | palsgard     | IN   |      3 |    3 | 234          | -        | Munir  |        | 2026-01-05 04:31:22 |
+|  12 | SGD88    | gasae        | OUT  |     11 |    0 | dide         | RAW      | Munir  | hghg   | 2026-01-05 04:12:47 |
+|  11 | SPA44    | jjk          | IN   |     12 |   12 | 345          | -        | Munir  |        | 2026-01-05 04:10:58 |
+|  10 | SPA      | ggg          | IN   |     35 |   35 | 345          | -        | Munir  |        | 2026-01-05 04:10:07 |
+|   9 | FAC04    | gambar       | OUT  |      2 |    0 | memk         | RAW      | Siti   | devara | 2026-01-05 02:16:17 |
+|   6 | SPA002   | bearing      | IN   |      2 |    5 | aman         | PM       | Budi   | millb  | 2026-01-05 02:12:20 |
+|   8 | WWW      | ww           | IN   |      0 |    0 | w            | RAW      | Budi   | de     | 2026-01-05 02:12:20 |
+|   7 | SPA 3    | babi         | OUT  |      1 |    0 | oren         | RAW      | Budi   | mixing | 2026-01-05 02:12:20 |
+|   2 | SPA22    | gsgsgs       | OUT  |      4 |    0 | dgd          | RAW      | Budi   | mill a | 2026-01-05 02:12:20 |
+|   3 | SPA22    | gsgsgs       | OUT  |      2 |    0 | agus         | RAW      | Budi   | intake | 2026-01-05 02:12:20 |
+|   4 | DDD2     | fff3         | OUT  |      3 |    0 | sdsd         | PM       | Siti   | edir   | 2026-01-05 02:12:20 |
+|   5 | SPA002   | bearing      | IN   |      3 |    3 | agus         | RAW      | Budi   | millc  | 2026-01-05 02:12:20 |
+|   1 |          | bearing2205  | OUT  |      3 |    0 | didik        |          | munir  |        | 2026-01-05 01:14:46 |
+
+═══════════════════════════════════════════════════════
+Total Records: 13
+═══════════════════════════════════════════════════════

@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15
+    image: postgres:17
     container_name: postgres_pgdb
     environment:
       POSTGRES_USER: pguser
@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
 
   rust:
-    image: rust:1.76-slim
+    image: rust:latest
     container_name: rust_dev
     hostname: rust-power
     user: "${UID:-1000}:${GID:-1000}"
@@ -59,7 +59,7 @@ services:
     restart: unless-stopped
 
   dotnet:
-    image: mcr.microsoft.com/dotnet/sdk:8.0
+    image: mcr.microsoft.com/dotnet/sdk:latest
     container_name: dotnet_dev
     user: "${UID:-1000}:${GID:-1000}"
     networks:
@@ -113,6 +113,19 @@ services:
     stdin_open: true
     tty: true
     command: tail -f /dev/null
+    restart: unless-stopped
+
+  node:
+    image: node:latest
+    container_name: node_dev
+    hostname: node-power
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./node:/workspace
+    working_dir: /workspace
+    networks:
+      - internal_net
+    command: sleep infinity
     restart: unless-stopped
 
 networks:
