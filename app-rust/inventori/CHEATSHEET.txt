@@ -1,0 +1,101 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                  📱 CHEAT SHEET - INVENTORI APP                    │
+│                      Remote Access dari HP                          │
+└─────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+🖥️  SETUP DI CODESPACE (PC) - One Time Only
+═══════════════════════════════════════════════════════════════════════
+
+1. Expose PostgreSQL Port:
+   ./setup-remote-db.sh
+   
+   Atau manual:
+   - Buka tab PORTS di VS Code
+   - Port 5432 → Klik kanan → Visibility → Public
+
+2. Copy Codespace URL:
+   Lihat URL di browser, contoh:
+   sturdy-space-guacamole-xxxxxx.app.github.dev
+
+═══════════════════════════════════════════════════════════════════════
+📱 SETUP DI HP (Termux Ubuntu) - Daily Use
+═══════════════════════════════════════════════════════════════════════
+
+1. Masuk Ubuntu:
+   proot-distro login ubuntu
+
+2. Set Database URL:
+   export DATABASE_URL='postgres://pguser:sisfo%401@<CODESPACE>-5432.app.github.dev/pgdb'
+   
+   Ganti <CODESPACE> dengan URL kamu!
+
+3. Masuk folder app:
+   cd ~/Docs/app-rust/inventori
+
+4. Pull update (optional):
+   git pull origin main
+
+5. Jalankan app:
+   ./run-from-android.sh
+   
+   Atau:
+   cargo run --release
+
+═══════════════════════════════════════════════════════════════════════
+⚡ QUICK COMMANDS
+═══════════════════════════════════════════════════════════════════════
+
+# Cek Codespace URL
+gh codespace list
+
+# Cek port forwarding
+gh codespace ports
+
+# Test connection dari HP
+psql "$DATABASE_URL" -c "SELECT version();"
+
+# Auto-set DATABASE_URL (tambah ke ~/.bashrc):
+echo "export DATABASE_URL='postgres://pguser:sisfo%401@<CODESPACE>-5432.app.github.dev/pgdb'" >> ~/.bashrc
+source ~/.bashrc
+
+═══════════════════════════════════════════════════════════════════════
+🔧 TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════
+
+❌ Error: Connection refused
+   → Cek port 5432 visibility = Public di Codespace
+   → Restart: docker compose restart postgres
+
+❌ Error: Authentication failed
+   → Password harus URL encoded: sisfo%401 (bukan sisfo@1)
+
+❌ Error: Database not found
+   → Init database di Codespace: docker compose up -d postgres
+   → Tunggu 10 detik, postgres butuh waktu startup
+
+❌ Error: cargo not found
+   → Install Rust: curl https://sh.rustup.rs | sh
+   → source $HOME/.cargo/env
+
+═══════════════════════════════════════════════════════════════════════
+💡 PRO TIPS
+═══════════════════════════════════════════════════════════════════════
+
+✅ Simpan DATABASE_URL di ~/.bashrc biar gak set ulang tiap login
+✅ Port forwarding otomatis aktif setelah Codespace start
+✅ Data sinkron real-time antara HP & PC
+✅ Bisa pakai dari multiple device sekaligus
+✅ Backup data di Docker volume pgdata (aman!)
+
+═══════════════════════════════════════════════════════════════════════
+📊 INFO DATABASE
+═══════════════════════════════════════════════════════════════════════
+
+Host: <CODESPACE_NAME>-5432.app.github.dev
+User: pguser
+Pass: sisfo@1 (URL: sisfo%401)
+DB  : pgdb
+Port: 5432
+
+═══════════════════════════════════════════════════════════════════════

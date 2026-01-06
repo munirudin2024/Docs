@@ -2,6 +2,7 @@ use sqlx::postgres::PgPoolOptions;
 use std::io::{self, Write};
 use std::fs;
 use std::path::Path;
+use std::env;
 use chrono::{Local, Duration, NaiveDateTime};
 use tabled::{Table, Tabled};
 
@@ -38,8 +39,22 @@ fn get_users() -> Vec<User> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let db_url = "postgres://pguser:sisfo%401@postgres_pgdb/pgdb";
-    let pool = PgPoolOptions::new().max_connections(5).connect(db_url).await?;
+    // Get database URL from environment variable or use default (for Docker network)
+    let db_url = env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://pguser:sisfo%401@postgres_pgdb/pgdb".to_string());
+    
+    println!("🔗 Connecting to database...");
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&db_url)
+        .await
+        .map_err(|e| {
+            eprintln!("❌ Database connection failed: {}", e);
+            eprintln!("💡 Tip: Set DATABASE_URL environment variable untuk remote connection");
+            e
+        })?;
+    
+    println!("✅ Database connected!");
 
     // Create tables
     init_database(&pool).await?;

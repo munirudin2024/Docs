@@ -6,6 +6,8 @@ services:
       POSTGRES_USER: pguser
       POSTGRES_DB: pgdb
       POSTGRES_PASSWORD_FILE: /run/secrets/pg_password
+    ports:
+      - "5432:5432"  # Expose untuk remote access dari HP
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./secrets/pg_password.txt:/run/secrets/pg_password:ro
