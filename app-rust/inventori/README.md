@@ -4,7 +4,7 @@ Aplikasi inventori berbasis CLI menggunakan Rust dan PostgreSQL untuk management
 
 ## 🚀 Quick Start
 
-### Di PC/Laptop (Codespace)
+### Codespace
 ```bash
 # Jalankan PostgreSQL
 docker compose up -d postgres
@@ -14,15 +14,32 @@ cd app-rust/inventori
 cargo run --release
 ```
 
-### 📱 Di HP Android (Termux + proot Ubuntu)
-Lihat panduan lengkap di [ANDROID-SETUP.md](./ANDROID-SETUP.md)
+## 🧰 Perintah Penting
 
-**TL;DR:**
-1. Set DATABASE_URL ke Codespace PostgreSQL:
-   ```bash
-   export DATABASE_URL='postgres://pguser:sisfo%401@<CODESPACE_URL>-5432.app.github.dev/pgdb'
-   ```
-2. Jalankan: `./run-from-android.sh`
+Jalankan aplikasi dengan tema dan lebar tampilan yang dapat diatur:
+
+```bash
+# Start PostgreSQL
+docker compose up -d postgres
+
+# Masuk ke folder app
+cd app-rust/inventori
+
+# Jalankan dengan tema 'dark' dan lebar banner 40
+APP_THEME=dark APP_WIDTH=40 cargo run --release
+
+# Contoh tema 'light'
+APP_THEME=light cargo run --release
+```
+
+## 🎨 Tema & Tampilan
+
+- APP_THEME: `dark` | `light` (default: `dark`)
+- APP_WIDTH: angka untuk lebar banner/menu (default: 34). Contoh: `APP_WIDTH=40`
+- Contoh konfigurasi cepat:
+
+```bash
+APP_THEME=dark APP_WIDTH=40 cargo run --release
 
 ## ✨ Fitur
 
@@ -34,11 +51,8 @@ Lihat panduan lengkap di [ANDROID-SETUP.md](./ANDROID-SETUP.md)
 - ✅ Stock tracking otomatis
 - ✅ History transaksi lengkap
 
-## 🛠️ Setup Remote Database
+## 🛠️ Setup Database
 
-Biar bisa akses dari HP dan PC dengan data yang sama:
-
-### 1. Di Codespace (PC)
 ```bash
 ./setup-remote-db.sh
 ```
@@ -48,19 +62,11 @@ Atau manual:
 2. Cari port **5432**
 3. Klik kanan → **Port Visibility** → **Public**
 
-### 2. Di HP (Termux Ubuntu)
-Copy DATABASE_URL dari output `setup-remote-db.sh` atau format manual:
-```bash
-export DATABASE_URL='postgres://pguser:sisfo%401@<CODESPACE_NAME>-5432.app.github.dev/pgdb'
-```
-
 ## 📂 File Penting
 
 - `main.rs` - Main application code
 - `.env.example` - Template konfigurasi database
-- `run-from-android.sh` - Script untuk jalankan dari HP
-- `setup-remote-db.sh` - Script setup remote access
-- `ANDROID-SETUP.md` - Panduan lengkap setup HP Android
+- `setup-remote-db.sh` - Script setup database access
 
 ## 🔐 Credentials
 
@@ -110,33 +116,17 @@ cargo test
 cargo check
 ```
 
-## 📱 Workflow HP + PC
+## 📱 Development Workflow
 
-1. **Di PC (Codespace):**
-   - Development & testing
-   - PostgreSQL always running
-   - Port 5432 di-forward ke public
-
-2. **Di HP (Termux):**
-   - Connect ke PostgreSQL Codespace
-   - Sama persis seperti di PC
-   - Data real-time sync
-
-3. **Keuntungan:**
-   - ✅ Satu database, tidak bingung
-   - ✅ Data selalu up-to-date
-   - ✅ Bisa input dari mana aja
-   - ✅ Backup centralized
+- Development & testing di Codespace
+- PostgreSQL always running
+- Data centralized & up-to-date
 
 ## 🐛 Troubleshooting
 
-### Connection Refused di HP
+### Connection Refused
 ```bash
-# Cek port forwarding di Codespace
-gh codespace ports
-
 # Pastikan port 5432 visibility = Public
-# Restart PostgreSQL di Codespace
 docker compose restart postgres
 ```
 
@@ -145,15 +135,6 @@ docker compose restart postgres
 # Pastikan password URL encoded
 # sisfo@1 → sisfo%401
 export DATABASE_URL='postgres://pguser:sisfo%401@...'
-```
-
-### Build Error di HP
-```bash
-# Install dependencies
-apt install -y build-essential pkg-config libssl-dev
-
-# Update Rust
-rustup update
 ```
 
 ## 📝 Notes
@@ -166,7 +147,6 @@ rustup update
 ## 🆘 Support
 
 Baca dokumentasi lengkap:
-- [ANDROID-SETUP.md](./ANDROID-SETUP.md) - Setup HP Android
 - [.env.example](./.env.example) - Konfigurasi database
 
 ## 📜 License
