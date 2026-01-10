@@ -33,6 +33,24 @@ services:
     command: sleep infinity
     restart: unless-stopped
 
+  inventori-be:
+    image: rust:latest
+    container_name: inventori_be
+    hostname: inventori-be
+    working_dir: /workspace/inventori-be
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./app-rust:/workspace
+    environment:
+      JWT_SECRET: supersecret
+      DATABASE_URL: postgres://pguser:sisfo%401@postgres_pgdb/pgdb
+    ports:
+      - "3000:3000"
+    networks:
+      - internal_net
+    command: bash -c "export PATH=/usr/local/cargo/bin:$$PATH && cargo run"
+    restart: unless-stopped
+
   kali:
     build:
       context: .

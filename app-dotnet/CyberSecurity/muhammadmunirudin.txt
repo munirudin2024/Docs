@@ -1,0 +1,601 @@
+# MAKALAH
+# APLIKASI CYBER SECURITY:  PASSWORD MANAGER & ANALYZER
+# Menggunakan Bahasa Pemrograman C#
+
+---
+
+**Disusun Oleh:**
+**Muhammad Munirudin**
+
+---
+
+**PROGRAM STUDI [Nama Prodi]**
+**FAKULTAS [Nama Fakultas]**
+**UNIVERSITAS [Nama Universitas]**
+**2026**
+
+---
+
+## KATA PENGANTAR
+
+Puji syukur kehadirat Allah SWT yang telah memberikan rahmat dan hidayah-Nya sehingga penulis dapat menyelesaikan makalah yang berjudul "Aplikasi Cyber Security: Password Manager & Analyzer Menggunakan Bahasa Pemrograman C#". 
+
+Makalah ini disusun untuk memenuhi tugas mata kuliah Pemrograman C#.  Dalam makalah ini, penulis membahas implementasi konsep array satu dimensi, array multi dimensi, logika penyortiran, serta procedure dan function dalam studi kasus Cyber Security.
+
+Penulis menyadari bahwa makalah ini masih jauh dari sempurna. Oleh karena itu, kritik dan saran yang membangun sangat penulis harapkan demi perbaikan di masa mendatang.
+
+[Kota], [Tanggal] Januari 2026
+
+**Muhammad Munirudin**
+
+---
+
+## DAFTAR ISI
+
+1. KATA PENGANTAR
+2. DAFTAR ISI
+3. BAB I PENDAHULUAN
+   - 1.1 Latar Belakang
+   - 1.2 Rumusan Masalah
+   - 1.3 Tujuan
+   - 1.4 Manfaat
+4. BAB II LANDASAN TEORI
+   - 2.1 Cyber Security
+   - 2.2 Password dan Keamanannya
+   - 2.3 Array dalam C#
+   - 2.4 Procedure dan Function
+   - 2.5 Algoritma Sorting
+5. BAB III PERANCANGAN DAN IMPLEMENTASI
+   - 3.1 Flowchart Program
+   - 3.2 Struktur Data yang Digunakan
+   - 3.3 Penjelasan Kode Program
+   - 3.4 Screenshot Hasil Program
+6. BAB IV PENUTUP
+   - 4.1 Kesimpulan
+   - 4.2 Saran
+7. DAFTAR PUSTAKA
+
+---
+
+## BAB I PENDAHULUAN
+
+### 1.1 Latar Belakang
+
+Di era digital saat ini, keamanan informasi menjadi salah satu aspek yang sangat penting. Setiap hari, jutaan orang mengakses berbagai layanan online seperti media sosial, perbankan, email, dan lain-lain.  Semua layanan tersebut memerlukan autentikasi berupa username dan password. 
+
+Menurut data dari Verizon Data Breach Investigations Report, lebih dari 80% pelanggaran keamanan data disebabkan oleh password yang lemah atau dicuri. Hal ini menunjukkan betapa pentingnya penggunaan password yang kuat dan pengelolaan password yang baik. 
+
+Cyber Security atau keamanan siber adalah praktik melindungi sistem, jaringan, dan program dari serangan digital. Salah satu aspek fundamental dalam cyber security adalah manajemen password yang baik. Password yang kuat harus memenuhi beberapa kriteria seperti panjang minimal, kombinasi huruf besar-kecil, angka, dan karakter spesial. 
+
+Berdasarkan latar belakang tersebut, penulis membuat aplikasi "Password Manager & Analyzer" menggunakan bahasa pemrograman C# yang dapat membantu pengguna dalam: 
+1. Menganalisis kekuatan password
+2. Membuat password yang aman secara otomatis
+3. Menyimpan dan mengelola password dengan enkripsi
+
+### 1.2 Rumusan Masalah
+
+1. Bagaimana cara mengimplementasikan array satu dimensi dan multi dimensi dalam aplikasi cyber security?
+2. Bagaimana cara menerapkan logika penyortiran (sorting) dalam pengelolaan data password?
+3. Bagaimana cara menggunakan procedure dan function untuk membangun aplikasi yang modular?
+4. Bagaimana cara membuat sistem pengecekan kekuatan password? 
+
+### 1.3 Tujuan
+
+1. Mengimplementasikan konsep array satu dimensi untuk menyimpan daftar password dan username
+2. Mengimplementasikan array multi dimensi untuk mencatat log aktivitas pengguna
+3. Menerapkan algoritma Bubble Sort untuk mengurutkan data
+4. Membuat procedure dan function yang terstruktur dan dapat digunakan kembali (reusable)
+5. Membangun aplikasi password manager yang fungsional dengan fitur enkripsi sederhana
+
+### 1.4 Manfaat
+
+**Manfaat Teoritis:**
+- Memahami penerapan konsep pemrograman C# dalam kasus nyata
+- Memahami pentingnya struktur data dalam pengembangan aplikasi
+
+**Manfaat Praktis:**
+- Aplikasi dapat digunakan untuk mengecek kekuatan password
+- Aplikasi dapat membantu generate password yang aman
+- Meningkatkan kesadaran akan pentingnya keamanan password
+
+---
+
+## BAB II LANDASAN TEORI
+
+### 2.1 Cyber Security
+
+Cyber Security adalah praktik melindungi sistem komputer, jaringan, perangkat, dan data dari akses tidak sah, serangan, atau kerusakan. Cyber security mencakup berbagai aspek, antara lain:
+
+1. **Network Security** - Melindungi jaringan komputer dari penyusup
+2. **Application Security** - Menjaga perangkat lunak bebas dari ancaman
+3. **Information Security** - Melindungi integritas dan privasi data
+4. **Operational Security** - Proses pengambilan keputusan untuk menangani dan melindungi aset data
+
+### 2.2 Password dan Keamanannya
+
+Password adalah serangkaian karakter yang digunakan untuk autentikasi pengguna. Password yang kuat memiliki karakteristik: 
+
+| Kriteria | Keterangan |
+|----------|------------|
+| Panjang | Minimal 8 karakter, idealnya 12+ karakter |
+| Huruf Besar | Mengandung minimal 1 huruf kapital (A-Z) |
+| Huruf Kecil | Mengandung minimal 1 huruf kecil (a-z) |
+| Angka | Mengandung minimal 1 angka (0-9) |
+| Karakter Spesial | Mengandung minimal 1 simbol (! @#$%^&*) |
+
+**Ancaman terhadap Password:**
+- **Brute Force Attack** - Mencoba semua kombinasi password
+- **Dictionary Attack** - Menggunakan kata-kata umum
+- **Phishing** - Menipu pengguna untuk memberikan password
+- **Keylogger** - Merekam ketikan keyboard
+
+### 2.3 Array dalam C#
+
+**Array Satu Dimensi:**
+Array satu dimensi adalah struktur data yang menyimpan elemen-elemen dengan tipe data sama dalam satu baris linear. 
+
+```csharp
+// Deklarasi array 1 dimensi
+string[] passwords = new string[10];
+int[] scores = {85, 90, 78, 92, 88};
+```
+
+**Array Multi Dimensi:**
+Array multi dimensi menyimpan data dalam bentuk tabel (baris dan kolom).
+
+```csharp
+// Deklarasi array 2 dimensi
+string[,] activityLog = new string[50, 3];
+int[,] matrix = new int[3, 3];
+```
+
+### 2.4 Procedure dan Function
+
+**Procedure (void method):**
+Procedure adalah blok kode yang melakukan aksi tertentu tanpa mengembalikan nilai. 
+
+```csharp
+static void TampilkanMenu()
+{
+    Console.WriteLine("=== MENU ===");
+    Console.WriteLine("1. Option 1");
+}
+```
+
+**Function (return method):**
+Function adalah blok kode yang melakukan aksi dan mengembalikan nilai.
+
+```csharp
+static int HitungSkor(string password)
+{
+    int skor = 0;
+    // logika perhitungan
+    return skor;
+}
+```
+
+### 2.5 Algoritma Sorting
+
+**Bubble Sort:**
+Bubble Sort adalah algoritma pengurutan sederhana yang bekerja dengan membandingkan elemen berdekatan dan menukarnya jika urutannya salah.
+
+```
+Proses Bubble Sort:
+[5, 3, 8, 1] → [3, 5, 8, 1] → [3, 5, 8, 1] → [3, 5, 1, 8]
+[3, 5, 1, 8] → [3, 5, 1, 8] → [3, 1, 5, 8]
+[3, 1, 5, 8] → [1, 3, 5, 8] ✓ Terurut! 
+```
+
+**Kompleksitas Waktu:**
+- Best Case: O(n)
+- Average Case: O(n²)
+- Worst Case: O(n²)
+
+---
+
+## BAB III PERANCANGAN DAN IMPLEMENTASI
+
+### 3.1 Flowchart Program
+
+```
+                    ┌─────────────┐
+                    │    START    │
+                    └──────┬──────┘
+                           │
+                           ▼
+              ┌────────────────────────┐
+              │   Tampilkan Menu       │
+              │   1. Cek Password      │
+              │   2. Generate Password │
+              │   3. Simpan Password   │
+              │   4. Lihat Password    │
+              │   5. Cari Password     │
+              │   6. Hapus Password    │
+              │   7. Lihat Log         │
+              │   8. Keluar            │
+              └───────────┬────────────┘
+                          │
+                          ▼
+                   ┌──────────────┐
+                   │ Input Pilihan│
+                   └──────┬───────┘
+                          │
+            ┌─────────────┼─────────────┐
+            │             │             │
+            ▼             ▼             ▼
+      ┌──────────┐ ┌──────────┐  ┌──────────┐
+      │ Pilih 1  │ │ Pilih 2  │  │ Pilih 8  │
+      │ Cek Pass │ │ Generate │  │  Keluar  │
+      └────┬─────┘ └────┬─────┘  └────┬─────┘
+           │            │             │
+           ▼            ▼             ▼
+    ┌────────────┐ ┌──────────┐  ┌─────────┐
+    │Input Pass  │ │Input Len │  │  END    │
+    └─────┬──────┘ └────┬─────┘  └─────────┘
+          │             │
+          ▼             ▼
+   ┌─────────────┐ ┌───────────────┐
+   │Hitung Skor  │ │Generate Acak  │
+   │Analisis     │ │dengan Kriteria│
+   └─────┬───────┘ └───────┬───────┘
+         │                 │
+         ▼                 ▼
+  ┌────────────┐   ┌────────────┐
+  │Tampil Hasil│   │Tampil Pass │
+  │& Saran     │   │& Skor      │
+  └─────┬──────┘   └──────┬─────┘
+        │                 │
+        └────────┬────────┘
+                 │
+                 ▼
+          ┌─────────────┐
+          │ Catat Log   │
+          └──────┬──────┘
+                 │
+                 ▼
+          (Kembali ke Menu)
+```
+
+### 3.2 Struktur Data yang Digunakan
+
+**1. Array 1 Dimensi:**
+
+| Nama Variabel | Tipe | Ukuran | Fungsi |
+|---------------|------|--------|--------|
+| `savedPasswords` | string[] | 100 | Menyimpan password terenkripsi |
+| `savedUsernames` | string[] | 100 | Menyimpan username/email |
+| `savedNamaAkun` | string[] | 100 | Menyimpan nama layanan (Gmail, IG, dll) |
+| `strengthLevels` | string[] | 5 | Label kekuatan password |
+
+**2. Array 2 Dimensi:**
+
+| Nama Variabel | Tipe | Ukuran | Fungsi |
+|---------------|------|--------|--------|
+| `activityLog` | string[,] | 100 x 3 | Log aktivitas (waktu, aksi, status) |
+
+**Struktur activityLog:**
+```
+Kolom 0: Waktu (DateTime)
+Kolom 1: Aksi (string)
+Kolom 2: Status (string)
+
+Contoh:
+[0,0] = "2026-01-10 14:30:00"
+[0,1] = "Cek Password"
+[0,2] = "Kuat"
+```
+
+### 3.3 Penjelasan Kode Program
+
+#### A. Deklarasi Array Global
+
+```csharp
+// Array 1 dimensi - menyimpan password
+static string[] savedPasswords = new string[100];
+static string[] savedUsernames = new string[100];
+static string[] savedNamaAkun = new string[100];
+static int passwordCount = 0;
+
+// Array 2 dimensi - log aktivitas
+static string[,] activityLog = new string[100, 3];
+static int logCount = 0;
+
+// Array untuk level kekuatan
+static string[] strengthLevels = { "Sangat Lemah", "Lemah", "Sedang", "Kuat", "Sangat Kuat" };
+
+// Konstanta lebar box (menyesuaikan lebar layar)
+static int boxWidth = 80;
+
+// Path file penyimpanan
+static string dataFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
+static string passwordFile = Path.Combine(dataFolder, "passwords.dat");
+static string logFile = Path.Combine(dataFolder, "activity_log.dat");
+```
+
+**Penjelasan:**
+- `savedPasswords`, `savedUsernames`, dan `savedNamaAkun` adalah array 1D untuk menyimpan data credential
+- `activityLog` adalah array 2D dengan 100 baris (maksimal 100 log) dan 3 kolom (waktu, aksi, status)
+- `strengthLevels` menyimpan label kekuatan yang diakses berdasarkan skor
+- `boxWidth` untuk tampilan dinamis menyesuaikan lebar layar
+- Data disimpan otomatis ke file `.dat`
+
+#### B. Function Menghitung Skor Password
+
+```csharp
+static int HitungSkorPassword(string password)
+{
+    int score = 0;
+
+    if (password.Length >= 8) score++;
+    if (MengandungHurufBesar(password)) score++;
+    if (MengandungHurufKecil(password)) score++;
+    if (MengandungAngka(password)) score++;
+    if (MengandungKarakterSpesial(password)) score++;
+
+    return score;
+}
+```
+
+**Penjelasan:**
+- Function ini menerima parameter `password` bertipe string
+- Mengembalikan nilai integer (skor 0-5)
+- Setiap kriteria yang terpenuhi menambah 1 poin
+
+#### C.  Algoritma Bubble Sort
+
+```csharp
+static void SortSaran(string[] arr)
+{
+    int n = arr.Length;
+    for (int i = 0; i < n - 1; i++)
+    {
+        for (int j = 0; j < n - i - 1; j++)
+        {
+            if (! string.IsNullOrEmpty(arr[j]) && !string.IsNullOrEmpty(arr[j + 1]))
+            {
+                bool jTinggi = arr[j].Contains("TINGGI");
+                bool j1Tinggi = arr[j + 1].Contains("TINGGI");
+
+                if (! jTinggi && j1Tinggi)
+                {
+                    // Swap
+                    string temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+    }
+}
+```
+
+**Penjelasan:**
+- Menggunakan nested loop untuk membandingkan elemen
+- Menukar posisi jika elemen prioritas TINGGI berada setelah SEDANG
+- Hasil:  saran dengan prioritas tinggi ditampilkan lebih dulu
+
+#### D. Enkripsi Caesar Cipher
+
+```csharp
+static string EncryptPassword(string password)
+{
+    char[] encrypted = new char[password.Length];
+    int shift = 3;
+
+    for (int i = 0; i < password.Length; i++)
+    {
+        encrypted[i] = (char)(password[i] + shift);
+    }
+
+    return new string(encrypted);
+}
+```
+
+**Penjelasan:**
+- Caesar Cipher menggeser setiap karakter sebanyak 3 posisi
+- Contoh: 'A' (ASCII 65) → 'D' (ASCII 68)
+- Password "abc" menjadi "def"
+
+### 3.4 Screenshot Hasil Program
+
+*[Sisipkan screenshot berikut: ]*
+
+**Screenshot 1: Menu Utama**
+```
+╔════════════════════════════════════════════════════════════════════════════════╗
+║            CYBER SECURITY - PASSWORD MANAGER & ANALYZER                        ║
+║                      Oleh: Muhammad Munirudin                                  ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                              MENU UTAMA                                      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  1. Cek Kekuatan Password                                                    │
+│  2. Generate Password Aman                                                   │
+│  3. Simpan Password Baru                                                     │
+│  4. Lihat Semua Password Tersimpan                                           │
+│  5. Cari & Gunakan Password                                                  │
+│  6. Hapus Password                                                           │
+│  7. Lihat Log Aktivitas                                                      │
+│  8. Keluar                                                                   │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  💾 Auto-save: ON  |  📊  10 password tersimpan                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Screenshot 2: Hasil Cek Password Lemah**
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       HASIL ANALISIS PASSWORD                                ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  Password  : 1*****3                                                         ║
+║  Panjang   : 7                                                               ║
+║  Skor      : 1/5                                                             ║
+║  Kekuatan  : Sangat Lemah                                                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  SARAN PERBAIKAN:                                                            ║
+║  • [PRIORITAS TINGGI] Tambah panjang minimal 8 karakter                      ║
+║  • [PRIORITAS TINGGI] Tambahkan karakter spesial (!@#$%^&*)                   ║
+║  • [PRIORITAS SEDANG] Tambahkan huruf besar (A-Z)                             ║
+║  • [PRIORITAS SEDANG] Tambahkan huruf kecil (a-z)                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+**Screenshot 3: Hasil Cek Password Kuat**
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       HASIL ANALISIS PASSWORD                                ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  Password  : M*************!                                                 ║
+║  Panjang   : 16                                                              ║
+║  Skor      : 5/5                                                             ║
+║  Kekuatan  : Sangat Kuat                                                     ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  SARAN PERBAIKAN:                                                            ║
+║  ✅ Password sudah sangat kuat!                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+**Screenshot 4: Generate Password**
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                      PASSWORD YANG DIGENERATE                                ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  Password : kR7@mNp2$xLq                                                     ║
+║  Panjang  : 12 karakter                                                      ║
+║  Kekuatan : Sangat Kuat (5/5)                                                ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  💡 Copy lalu simpan dengan menu '3'                                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+**Screenshot 5: Log Aktivitas**
+```
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                              LOG AKTIVITAS                                     ║
+╠════════════════════════════════════════════════════════════════════════════════╣
+║  Waktu                Aksi                  Status                             ║
+║  ─────                ────                  ──────                             ║
+║  2026-01-10 14:30:15  Cek Password          Lemah                              ║
+║  2026-01-10 14:31:22  Cek Password          Sangat Kuat                        ║
+║  2026-01-10 14:32:45  Generate Password     Berhasil                           ║
+║  2026-01-10 14:33:10  Simpan Password       gmail                              ║
+║  2026-01-10 14:34:20  Ambil Password        instagram                          ║
+║  2026-01-10 14:35:05  Hapus Password        twitter                            ║
+╠════════════════════════════════════════════════════════════════════════════════╣
+║  Total: 6 log aktivitas                                                        ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+```
+
+**Screenshot 6: Lihat Semua Password**
+```
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                            PASSWORD TERSIMPAN                                  ║
+╠════════════════════════════════════════════════════════════════════════════════╣
+║  No   Layanan              Username                  Password                  ║
+║  ──   ───────              ────────                  ────────                  ║
+║   1.  Gmail                user@gmail.com            M******1                  ║
+║   2.  Instagram            @munirudin                P******!                  ║
+║   3.  Facebook             munirudin2024             S******#                  ║
+╠════════════════════════════════════════════════════════════════════════════════╣
+║  💡 Password disensor untuk keamanan.                                          ║
+║  💡 Gunakan menu '5' untuk melihat password lengkap.                           ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+```
+
+**Screenshot 7: Cari & Gunakan Password**
+```
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                            DETAIL PASSWORD                                     ║
+╠════════════════════════════════════════════════════════════════════════════════╣
+║  Layanan  : Gmail                                                              ║
+║  Username : user@gmail.com                                                     ║
+║  Password : MyStr0ngP@ssw0rd!                                                  ║
+╠════════════════════════════════════════════════════════════════════════════════╣
+║  📋 Silakan copy password di atas!                                             ║
+║  ⚠  Jangan share ke orang lain!                                               ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+```
+
+---
+
+## BAB IV PENUTUP
+
+### 4.1 Kesimpulan
+
+Berdasarkan hasil perancangan dan implementasi aplikasi Cyber Security: Password Manager & Analyzer, dapat disimpulkan bahwa:
+
+1. **Array Satu Dimensi** berhasil diimplementasikan untuk menyimpan daftar password (`savedPasswords[]`), username (`savedUsernames[]`), nama layanan (`savedNamaAkun[]`), dan level kekuatan (`strengthLevels[]`). Array 1D efektif untuk menyimpan data linear yang sejenis dengan kapasitas 100 data.
+
+2. **Array Multi Dimensi** berhasil diimplementasikan melalui `activityLog[,]` yang menyimpan log aktivitas dengan 3 kolom (waktu, aksi, status) dan kapasitas 100 log. Array 2D sangat berguna untuk menyimpan data tabular.
+
+3. **Algoritma Sorting (Bubble Sort)** berhasil diterapkan untuk mengurutkan:
+   - Saran perbaikan password berdasarkan prioritas
+   - Daftar password berdasarkan nama layanan secara alfabetis
+
+4. **Procedure dan Function** berhasil digunakan untuk membuat program yang modular:
+   - Procedure: `TampilkanMenu()`, `CekKekuatanPassword()`, `SimpanPassword()`, `LihatSemuaPassword()`, `CariDanGunakanPassword()`, `HapusPassword()`, `LihatLogAktivitas()`, dll.
+   - Function: `HitungSkorPassword()`, `EncryptPassword()`, `DecryptPassword()`, `MengandungHurufBesar()`, `MaskPassword()`, `FormatField()`, dll.
+
+5. **Fitur Tambahan** yang berhasil diimplementasikan:
+   - Auto-save ke file (passwords.dat dan activity_log.dat)
+   - Tampilan dinamis menyesuaikan lebar layar konsol
+   - Cari & gunakan password dengan pencarian
+   - Hapus password dari penyimpanan
+   - Password masking untuk keamanan tampilan
+
+6. **Studi Kasus Cyber Security** memberikan konteks nyata tentang pentingnya:
+   - Password yang kuat (minimal 8 karakter, kombinasi huruf, angka, simbol)
+   - Enkripsi data sensitif
+   - Pencatatan aktivitas (logging) untuk audit keamanan
+
+### 4.2 Saran
+
+Untuk pengembangan aplikasi lebih lanjut, disarankan:
+
+1. **Peningkatan Enkripsi**: Mengganti Caesar Cipher dengan algoritma yang lebih kuat seperti AES-256 atau menggunakan library kriptografi standar
+
+2. **Database**: Menggunakan database (SQL Server/SQLite) untuk penyimpanan yang lebih aman dan efisien
+
+3. **GUI**: Mengembangkan antarmuka grafis menggunakan Windows Forms, WPF, atau MAUI untuk pengalaman pengguna yang lebih baik
+
+4. **Fitur Keamanan Tambahan**:
+   - Master password untuk mengakses aplikasi
+   - Deteksi password yang sudah pernah bocor (breach detection)
+   - Two-factor authentication (2FA)
+   - Pengingat untuk mengganti password secara berkala
+
+5. **Fitur Manajemen**:
+   - Export/Import data password (CSV, JSON)
+   - Kategori password (Personal, Work, Banking, dll)
+   - Pencarian dan filter yang lebih canggih
+
+6. **Multi-platform**: Mengembangkan versi mobile (Android/iOS) atau web-based untuk akses dari berbagai perangkat
+
+---
+
+## DAFTAR PUSTAKA
+
+1. Stallings, W. (2017). *Cryptography and Network Security: Principles and Practice* (7th ed.). Pearson.
+
+2. Microsoft. (2024). *C# Programming Guide - Arrays*. Microsoft Docs.  https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/arrays/
+
+3. OWASP. (2023). *Password Storage Cheat Sheet*.  OWASP Foundation. https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+
+4. Verizon. (2023). *Data Breach Investigations Report*. Verizon Enterprise. 
+
+5. Cormen, T. H., et al. (2009). *Introduction to Algorithms* (3rd ed.). MIT Press.
+
+6. Deitel, P., & Deitel, H. (2020). *C# How to Program* (6th ed.). Pearson.
+
+---
+
+## LAMPIRAN
+
+### Lampiran 1: Source Code Lengkap
+*(Lampirkan file CyberSecurityApp.cs)*
+
+### Lampiran 2: Screenshot Tambahan
+*(Lampirkan screenshot testing program)*
+
+---
