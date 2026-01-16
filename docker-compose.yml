@@ -70,6 +70,8 @@ services:
     image: oven/bun:latest
     container_name: bun_dev
     user: "${UID:-1000}:${GID:-1000}"
+    ports:
+      - "5173:5173"
     networks:
       - internal_net
     volumes:
