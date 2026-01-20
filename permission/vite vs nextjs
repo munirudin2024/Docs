@@ -1,0 +1,16 @@
+Vite → lebih ringan, cepat, cocok untuk Vue/React/Svelte
+Next.js → framework React dengan SSR, routing, dll built-in
+
+--------------------- nextjs ---------------------
+# Membuat proyek Next.js dengan npm
+mkdir nama-app
+cd nama-app
+npm init next-app@latest    
+cd /workspace
+bunx create-next-app@latest nama-app
+# atau
+bun create next-app nama-app
+
+# Jalankan Next.js
+cd nama-app
+bun dev

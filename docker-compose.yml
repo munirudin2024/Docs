@@ -71,7 +71,8 @@ services:
     container_name: bun_dev
     user: "${UID:-1000}:${GID:-1000}"
     ports:
-      - "5173:5173"
+      - "5173:5173"  # Vite
+      - "3000:3000"  # Next.js
     networks:
       - internal_net
     volumes:
@@ -101,35 +102,9 @@ services:
     hostname: neovim-dev
     user: "${UID:-1000}:${GID:-1000}"
     volumes:
-      - ./app-rust:/workspace
+      - .:/workspace
       - ./dotfiles/nvim:/home/dev/.config/nvim:rw
     working_dir: /workspace
-    networks:
-      - internal_net
-    stdin_open: true
-    tty: true
-    command: tail -f /dev/null
-    restart: unless-stopped
-
-  firebase:
-    build:
-      context: .
-      dockerfile: Dockerfile.firebase
-    image: firebase-studio:latest
-    container_name: firebase_studio
-    hostname: firebase-studio
-    volumes:
-      - ./firebase:/workspace
-      - ~/.config/firebase:/home/dev/.config/firebase:rw
-    working_dir: /workspace
-    ports:
-      - "4000:4000"
-      - "8080:8080"
-      - "9099:9099"
-      - "5001:5001"
-      - "5000:5000"
-    environment:
-      - TZ=Asia/Jakarta
     networks:
       - internal_net
     stdin_open: true

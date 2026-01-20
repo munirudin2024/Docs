@@ -14,16 +14,15 @@ while true; do
   echo -e "${BLUE}╚═════════════════════════════╝${NC}"
   echo ""
   echo -e "${GREEN}Kontainer tersedia:${NC}"
-  echo "1) Bun (Frontend/Vite)"
-  echo "2) Kali (Security Lab)"
-  echo "3) Rust (System Dev)"
-  echo "4) Postgres (Database)"
-  echo "5) Neovim (Editor)"
-  echo "6) Dotnet (Backend)"
-  echo "7) Firebase (Cloud)"
+  echo "1) Bun "
+  echo "2) Kalilinux"
+  echo "3) Rust "
+  echo "4) Postgres "
+  echo "5) Neovim "
+  echo "6) Dotnet "
   echo "q) Exit"
   echo ""
-  read -p "Pilihan [1-7/q]: " choice
+  read -p "> " choice
 
   # Cek Docker daemon terlebih dahulu
   if ! docker info >/dev/null 2>&1; then
@@ -73,16 +72,12 @@ while true; do
       echo -e "${YELLOW}Masuk Dotnet...${NC}"
       enter_container dotnet_dev /bin/bash
       ;;
-    7)
-      echo -e "${YELLOW}Masuk Firebase...${NC}"
-      enter_container firebase_studio /bin/bash
-      ;;
     q)
-      echo -e "${GREEN}Sampai jumpa!${NC}"
+      echo -e "${GREEN}closed lab${NC}"
       exit 0
       ;;
     *)
-      echo -e "${RED}Pilihan salah!${NC}"
+      echo -e "${RED}salah!${NC}"
       sleep 2
       ;;
   esac
