@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import ChiSquareFullAnalysis from './components/ChiSquareFullAnalysis'
 import KopSurat from './components/KopSurat'
 import PrintButton from './components/PrintButton'

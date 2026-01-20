@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { jStat } from 'jstat'
 
 type Props = {

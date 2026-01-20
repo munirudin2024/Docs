@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
@@ -28,7 +28,6 @@ function matrixColSums(mat: number[][]) {
 
 export default function CoffeeAnalysis() {
   const {
-    rowTotals, colTotals, N,
     expected, chi2, df, pValue, cramersV,
     chartData, propData
   } = useMemo(() => {
