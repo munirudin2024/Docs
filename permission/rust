@@ -1,2 +1,6 @@
+cargo new nama_project
+cargo new nama_project --bin //sama dg 1
+cargo new nama_project --lib // hanya buat src/lib.rs
+
 compile: rust namafile.rs 
 jalankan: ./namafile
