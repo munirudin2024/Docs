@@ -5,6 +5,7 @@ use std::path::Path;
 use std::env;
 use std::collections::HashSet;
 use chrono::{Local, Duration, NaiveDateTime, Utc, TimeZone};
+use chrono::Datelike;
 use tabled::{Table, Tabled};
 
 const BANNER_WIDTH: usize = 34;
@@ -183,29 +184,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let theme = get_theme();
         let width = get_width(BANNER_WIDTH);
         clear_screen();
-        // Gabungkan header (SISTEM PPIC) + Petugas + label MENU (center) + opsi (left)
+        // Menu 4 langkah yang ringkas
         let subtitle = format!("Petugas: {}", current_user.name);
         print_menu_combined(
             "SISTEM PPIC",
             &subtitle,
             "MENU",
-            &["1) Received", "2) Issued", "3) Report", "4) Audit data transaksi", "5) Stock Opname", "6) Audit Stock fisik", "7) Exit"],
+            &["1) Transaksi (IN/OUT)", "2) Stok & Opname", "3) Laporan", "4) Daftar Semua Item", "5) Keluar"],
             width,
         );
 
-        prompt("Pilih menu (1-7): ")?;
+        prompt("Pilih menu (1-4): ")?;
 
         let mut choice = String::new();
         io::stdin().read_line(&mut choice)?;
 
         match choice.trim() {
-            "1" => input_transaction(&pool, "IN", &current_user).await?,
-            "2" => input_transaction(&pool, "OUT", &current_user).await?,
-            "3" => show_report(&pool, &current_user).await?,
-            "4" => audit_item(&pool, &current_user).await?,
-            "5" => stok_opname(&pool, &current_user).await?,
-            "6" => audit_opname(&pool, &current_user).await?,
-            "7" => {
+            "1" => menu_transaksi(&pool, &current_user).await?,
+            "2" => menu_stok_opname(&pool, &current_user).await?,
+            "3" => menu_laporan(&pool, &current_user).await?,
+            "4" => list_all_items(&pool).await?,
+            "5" => {
                 println!("\nTerima kasih telah menggunakan sistem ini!");
                 break;
             }
@@ -213,6 +212,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    Ok(())
+}
+
+// Menu untuk menampilkan semua item di database
+async fn list_all_items(pool: &sqlx::PgPool) -> Result<(), Box<dyn std::error::Error>> {
+    clear_screen();
+    let theme = get_theme();
+    println!("{}{}DAFTAR SEMUA ITEM DI DATABASE:{}", BOLD, FG_CYAN, RESET);
+    let items: Vec<(Option<String>, Option<String>, Option<i32>)> = sqlx::query_as(
+        "SELECT code, name, stock FROM items ORDER BY code"
+    )
+    .fetch_all(pool)
+    .await?;
+    if items.is_empty() {
+        println!("{}{}Tidak ada item di database.{}", BOLD, FG_YELLOW, RESET);
+    } else {
+        println!("{:<10} {:<30} {:>8}", "Kode", "Nama", "Stok");
+        for (code, name, stock) in items {
+            let code = code.unwrap_or_else(|| "".to_string());
+            let name = name.unwrap_or_else(|| "".to_string());
+            let stock = stock.unwrap_or(0);
+            println!("{:<10} {:<30} {:>8}", code, name, stock);
+        }
+    }
+    prompt("Tekan Enter untuk kembali...")?;
+    let mut _dummy = String::new();
+    io::stdin().read_line(&mut _dummy).ok();
     Ok(())
 }
 
@@ -314,6 +340,455 @@ async fn init_database(pool: &sqlx::PgPool) -> Result<(), sqlx::Error> {
     Ok(())
 }
 
+// ==================== AUTO-SUGGEST ITEM ====================
+async fn search_items(pool: &sqlx::PgPool, keyword: &str) -> Result<Vec<(String, String, i32)>, sqlx::Error> {
+    let pattern = format!("%{}%", keyword.to_uppercase());
+    let items: Vec<(String, String, i32)> = sqlx::query_as(
+        "SELECT code, COALESCE(name,''), COALESCE(stock,0) FROM items 
+         WHERE code ILIKE $1 OR name ILIKE $1 
+         ORDER BY code LIMIT 10"
+    )
+    .bind(&pattern)
+    .fetch_all(pool)
+    .await?;
+    Ok(items)
+}
+
+async fn select_or_create_item(pool: &sqlx::PgPool) -> Result<Option<(String, String, i32)>, Box<dyn std::error::Error>> {
+    prompt("Kode item (ketik untuk cari): ")?;
+    let mut input = String::new();
+    io::stdin().read_line(&mut input)?;
+    let keyword = input.trim().to_uppercase();
+    
+    if keyword.is_empty() {
+        return Ok(None);
+    }
+
+    // Cari item yang cocok
+    let matches = search_items(pool, &keyword).await?;
+    
+    if matches.is_empty() {
+        // Item baru
+        println!("{}{}Item baru. Masukkan nama:{}", DIM, FG_YELLOW, RESET);
+        prompt("Nama item: ")?;
+        let mut name = String::new();
+        io::stdin().read_line(&mut name)?;
+        let name = name.trim().to_string();
+        
+        // Insert item baru
+        sqlx::query("INSERT INTO items (code, name, stock) VALUES ($1, $2, 0) ON CONFLICT (code) DO NOTHING")
+            .bind(&keyword)
+            .bind(&name)
+            .execute(pool)
+            .await?;
+        
+        return Ok(Some((keyword, name, 0)));
+    }
+    
+    // Tampilkan pilihan
+    println!("\n{}{}Hasil pencarian:{}", BOLD, FG_CYAN, RESET);
+    for (i, (code, name, stock)) in matches.iter().enumerate() {
+        println!("  {}) {} - {} (stok: {})", i + 1, code, name, stock);
+    }
+    println!("  0) Input item baru");
+    
+    prompt("Pilih (0-{}): ")?;
+    let mut choice = String::new();
+    io::stdin().read_line(&mut choice)?;
+    
+    match choice.trim().parse::<usize>() {
+        Ok(0) => {
+            // Input item baru
+            prompt("Kode item baru: ")?;
+            let mut new_code = String::new();
+            io::stdin().read_line(&mut new_code)?;
+            let new_code = new_code.trim().to_uppercase();
+            
+            prompt("Nama item: ")?;
+            let mut name = String::new();
+            io::stdin().read_line(&mut name)?;
+            let name = name.trim().to_string();
+            
+            sqlx::query("INSERT INTO items (code, name, stock) VALUES ($1, $2, 0) ON CONFLICT (code) DO NOTHING")
+                .bind(&new_code)
+                .bind(&name)
+                .execute(pool)
+                .await?;
+            
+            Ok(Some((new_code, name, 0)))
+        }
+        Ok(n) if n >= 1 && n <= matches.len() => {
+            Ok(Some(matches[n - 1].clone()))
+        }
+        _ => Ok(None)
+    }
+}
+
+// ==================== FIFO INFO ====================
+async fn show_fifo_info(pool: &sqlx::PgPool, item_id: i32) {
+    let fifo_rows: Result<Vec<(Option<NaiveDateTime>, Option<i32>, Option<String>)>, _> = sqlx::query_as(
+        "SELECT created_at, quantity, requester
+         FROM transactions
+         WHERE item_id = $1 AND type = 'IN'
+         ORDER BY created_at ASC
+         LIMIT 5"
+    )
+    .bind(item_id)
+    .fetch_all(pool)
+    .await;
+
+    if let Ok(rows) = fifo_rows {
+        if !rows.is_empty() {
+            println!("\n{}{}📦 FIFO - Gunakan batch tertua dulu:{}", BOLD, FG_GREEN, RESET);
+            for (i, (ts, qty, req)) in rows.iter().enumerate() {
+                let ts_str = ts.map(|t| t.format("%Y-%m-%d").to_string()).unwrap_or("-".to_string());
+                let qty_val = qty.unwrap_or(0);
+                let req_str = req.as_deref().unwrap_or("-");
+                let marker = if i == 0 { " ← PRIORITAS" } else { "" };
+                println!("   {} | qty: {:>4} | PO: {}{}", ts_str, qty_val, req_str, marker);
+            }
+        }
+    }
+}
+
+// ==================== MENU 1: TRANSAKSI ====================
+async fn menu_transaksi(
+    pool: &sqlx::PgPool,
+    current_user: &User,
+) -> Result<(), Box<dyn std::error::Error>> {
+    clear_screen();
+    let _theme = get_theme();
+    let width = get_width(BANNER_WIDTH);
+    let subtitle = format!("Petugas: {}", current_user.name);
+    print_menu_combined("SISTEM PPIC", &subtitle, "TRANSAKSI", 
+        &["1) Barang Masuk (IN)", "2) Barang Keluar (OUT)", "0) Kembali"], width);
+    
+    prompt("Pilih: ")?;
+    let mut choice = String::new();
+    io::stdin().read_line(&mut choice)?;
+    
+    match choice.trim() {
+        "1" => input_transaction_v2(pool, "IN", current_user).await?,
+        "2" => input_transaction_v2(pool, "OUT", current_user).await?,
+        _ => {}
+    }
+    Ok(())
+}
+
+async fn input_transaction_v2(
+    pool: &sqlx::PgPool,
+    trans_type: &str,
+    servant: &User,
+) -> Result<(), Box<dyn std::error::Error>> {
+    clear_screen();
+    let theme = get_theme();
+    let width = get_width(BANNER_WIDTH);
+    let title = if trans_type == "IN" { "BARANG MASUK" } else { "BARANG KELUAR" };
+    let subtitle = format!("Petugas: {}", servant.name);
+    print_menu_combined("SISTEM PPIC", &subtitle, title, &[], width);
+
+    // Header info sekali saja
+    let (requester, req_role, location) = if trans_type == "IN" {
+        prompt("No P.O: ")?;
+        let mut po = String::new();
+        io::stdin().read_line(&mut po)?;
+        (po.trim().to_string(), "-".to_string(), "".to_string())
+    } else {
+        prompt("Requester: ")?;
+        let mut req = String::new();
+        io::stdin().read_line(&mut req)?;
+        
+        println!("\nRole: 1)maintenance 2)production 3)order 4)titipan 5)tidak stok");
+        prompt("Pilih (1-5): ")?;
+        let mut role_choice = String::new();
+        io::stdin().read_line(&mut role_choice)?;
+        let role = match role_choice.trim() {
+            "1" => "maintenance", "2" => "production", "3" => "order", 
+            "4" => "titipan", "5" => "tidak stok", _ => "production"
+        };
+        
+        prompt("Lokasi: ")?;
+        let mut loc = String::new();
+        io::stdin().read_line(&mut loc)?;
+        
+        (req.trim().to_string(), role.to_string(), loc.trim().to_string())
+    };
+
+    // Loop input items dengan auto-suggest
+    loop {
+        println!("\n{}{}--- Input Item (kosong untuk selesai) ---{}", DIM, FG_CYAN, RESET);
+        
+        let item = select_or_create_item(pool).await?;
+        if item.is_none() {
+            break;
+        }
+        let (code, item_name, current_stock) = item.unwrap();
+
+        // Untuk OUT, tampilkan FIFO
+        if trans_type == "OUT" {
+            let item_id: Option<(i32,)> = sqlx::query_as("SELECT id FROM items WHERE code = $1")
+                .bind(&code)
+                .fetch_optional(pool)
+                .await?;
+            if let Some((id,)) = item_id {
+                show_fifo_info(pool, id).await;
+            }
+        }
+
+        println!("Stok saat ini: {}", current_stock);
+        prompt("Jumlah: ")?;
+        let mut qty_s = String::new();
+        io::stdin().read_line(&mut qty_s)?;
+        let quantity: i32 = qty_s.trim().parse().unwrap_or(0);
+
+        if quantity <= 0 {
+            print_error(&theme, "Jumlah harus > 0");
+            continue;
+        }
+
+        // Validasi stok untuk OUT
+        if trans_type == "OUT" && quantity > current_stock {
+            print_error(&theme, &format!("Stok tidak cukup! (tersedia: {})", current_stock));
+            continue;
+        }
+
+        let new_stock = if trans_type == "IN" {
+            current_stock + quantity
+        } else {
+            current_stock - quantity
+        };
+
+        // Update stok
+        sqlx::query("UPDATE items SET stock = $1 WHERE code = $2")
+            .bind(new_stock)
+            .bind(&code)
+            .execute(pool)
+            .await?;
+
+        let (item_id,): (i32,) = sqlx::query_as("SELECT id FROM items WHERE code = $1")
+            .bind(&code)
+            .fetch_one(pool)
+            .await?;
+
+        // Simpan transaksi
+        sqlx::query(
+            "INSERT INTO transactions (code, item_id, type, quantity, stock_after, requester, requester_role, servant, location)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+        )
+        .bind(&code)
+        .bind(item_id)
+        .bind(trans_type)
+        .bind(quantity)
+        .bind(new_stock)
+        .bind(&requester)
+        .bind(&req_role)
+        .bind(&servant.name)
+        .bind(&location)
+        .execute(pool)
+        .await?;
+
+        print_success(&theme, &format!("{} {} | {} {} → Sisa: {}", code, item_name, quantity, trans_type, new_stock));
+    }
+
+    println!("\n{}{}Transaksi selesai!{}", BOLD, FG_GREEN, RESET);
+    prompt("Tekan Enter...")?;
+    let mut _dummy = String::new();
+    io::stdin().read_line(&mut _dummy).ok();
+    Ok(())
+}
+
+// ==================== MENU 2: STOK & OPNAME ====================
+async fn menu_stok_opname(
+    pool: &sqlx::PgPool,
+    current_user: &User,
+) -> Result<(), Box<dyn std::error::Error>> {
+    clear_screen();
+    let width = get_width(BANNER_WIDTH);
+    let subtitle = format!("Petugas: {}", current_user.name);
+    print_menu_combined("SISTEM PPIC", &subtitle, "STOK & OPNAME", 
+        &["1) Input Stock Opname", "2) Lihat Hasil Opname", "3) Lihat Semua Hasil Opname", "4) Cek Stok Item", "0) Kembali"], width);
+
+    prompt("Pilih: ")?;
+    let mut choice = String::new();
+    io::stdin().read_line(&mut choice)?;
+
+    match choice.trim() {
+        "1" => stok_opname(pool, current_user).await?,
+        "2" => audit_opname(pool, current_user).await?,
+        "3" => lihat_semua_opname(pool).await?,
+        "4" => cek_stok_cepat(pool).await?,
+        _ => {}
+    }
+    Ok(())
+}
+
+// ==================== LIHAT SEMUA HASIL OPNAME ====================
+async fn lihat_semua_opname(pool: &sqlx::PgPool) -> Result<(), Box<dyn std::error::Error>> {
+    clear_screen();
+    println!("{}{}LIHAT SEMUA HASIL OPNAME{}", BOLD, FG_CYAN, RESET);
+    prompt("Filter gudang (kosong untuk semua): ")?;
+    let mut wh = String::new();
+    io::stdin().read_line(&mut wh)?;
+    let wh = wh.trim();
+    prompt("Periode (YYYY-MM-DD, kosong untuk semua): ")?;
+    let mut tgl = String::new();
+    io::stdin().read_line(&mut tgl)?;
+    let tgl = tgl.trim();
+
+    let mut query = "SELECT warehouse, code, item_name, location, counted_qty, expected_qty, diff, checked_by, to_char(created_at, 'YYYY-MM-DD HH24:MI') as ts FROM stock_opname WHERE 1=1".to_string();
+    let mut params: Vec<String> = Vec::new();
+    if !wh.is_empty() {
+        query.push_str(" AND warehouse = $1");
+        params.push(wh.to_string());
+    }
+    if !tgl.is_empty() {
+        query.push_str(" AND to_char(created_at, 'YYYY-MM-DD') = $2");
+        params.push(tgl.to_string());
+    }
+    query.push_str(" ORDER BY created_at DESC LIMIT 100");
+
+    let rows = if params.len() == 2 {
+        sqlx::query_as::<_, (String, String, String, String, i32, i32, i32, String, String)>(&query)
+            .bind(&params[0])
+            .bind(&params[1])
+            .fetch_all(pool)
+            .await?
+    } else if params.len() == 1 {
+        sqlx::query_as::<_, (String, String, String, String, i32, i32, i32, String, String)>(&query)
+            .bind(&params[0])
+            .fetch_all(pool)
+            .await?
+    } else {
+        sqlx::query_as::<_, (String, String, String, String, i32, i32, i32, String, String)>(&query)
+            .fetch_all(pool)
+            .await?
+    };
+
+    if rows.is_empty() {
+        println!("Tidak ada data opname.");
+    } else {
+        println!("\n{:<12} {:<10} {:<15} {:<12} {:>6} {:>6} {:>6} {:<10} {}", "Gudang", "Kode", "Item", "Lokasi", "Hitung", "Sistem", "Selisih", "Petugas", "Tanggal");
+        println!("{}", "-".repeat(90));
+        for (wh, code, name, loc, counted, expected, diff, petugas, ts) in &rows {
+            println!("{:<12} {:<10} {:<15} {:<12} {:>6} {:>6} {:>6} {:<10} {}", wh, code, truncate_to_width(name, 15), truncate_to_width(loc, 12), counted, expected, diff, petugas, ts);
+        }
+    }
+    prompt("\nTekan Enter...")?;
+    let mut _dummy = String::new();
+    io::stdin().read_line(&mut _dummy).ok();
+    Ok(())
+}
+
+async fn cek_stok_cepat(pool: &sqlx::PgPool) -> Result<(), Box<dyn std::error::Error>> {
+    clear_screen();
+    println!("{}{}CEK STOK CEPAT{}", BOLD, FG_CYAN, RESET);
+    
+    let item = select_or_create_item(pool).await?;
+    if let Some((code, name, stock)) = item {
+        println!("\n{}{}════════════════════════════{}", BOLD, FG_GREEN, RESET);
+        println!("Kode  : {}", code);
+        println!("Nama  : {}", name);
+        println!("Stok  : {}", stock);
+        println!("{}{}════════════════════════════{}", BOLD, FG_GREEN, RESET);
+        
+        // Tampilkan FIFO
+        let item_id: Option<(i32,)> = sqlx::query_as("SELECT id FROM items WHERE code = $1")
+            .bind(&code)
+            .fetch_optional(pool)
+            .await?;
+        if let Some((id,)) = item_id {
+            show_fifo_info(pool, id).await;
+        }
+    }
+    
+    prompt("\nTekan Enter...")?;
+    let mut _dummy = String::new();
+    io::stdin().read_line(&mut _dummy).ok();
+    Ok(())
+}
+
+// ==================== MENU 3: LAPORAN ====================
+async fn menu_laporan(
+    pool: &sqlx::PgPool,
+    current_user: &User,
+) -> Result<(), Box<dyn std::error::Error>> {
+    clear_screen();
+    let width = get_width(BANNER_WIDTH);
+    let subtitle = format!("Petugas: {}", current_user.name);
+    print_menu_combined("SISTEM PPIC", &subtitle, "LAPORAN", 
+        &["1) Laporan Transaksi", "2) Histori Item", "3) Cari PO/Requester", "0) Kembali"], width);
+    
+    prompt("Pilih: ")?;
+    let mut choice = String::new();
+    io::stdin().read_line(&mut choice)?;
+    
+    match choice.trim() {
+        "1" => show_report(pool, current_user).await?,
+        "2" => audit_item(pool, current_user).await?,
+        "3" => cari_transaksi(pool).await?,
+        _ => {}
+    }
+    Ok(())
+}
+
+async fn cari_transaksi(pool: &sqlx::PgPool) -> Result<(), Box<dyn std::error::Error>> {
+    clear_screen();
+    let theme = get_theme();
+    println!("{}{}CARI TRANSAKSI{}", BOLD, FG_CYAN, RESET);
+    println!("1) Cari No PO");
+    println!("2) Cari Requester");
+    prompt("Pilih: ")?;
+    
+    let mut choice = String::new();
+    io::stdin().read_line(&mut choice)?;
+    
+    let search_value = match choice.trim() {
+        "1" => {
+            prompt("No PO: ")?;
+            let mut v = String::new();
+            io::stdin().read_line(&mut v)?;
+            v.trim().to_uppercase()
+        }
+        "2" => {
+            prompt("Nama Requester: ")?;
+            let mut v = String::new();
+            io::stdin().read_line(&mut v)?;
+            v.trim().to_string()
+        }
+        _ => return Ok(())
+    };
+
+    let rows: Vec<(i32, String, String, String, i32, i32, String, String)> = sqlx::query_as(
+        "SELECT t.id, t.code, i.name, t.type, t.quantity, t.stock_after, t.requester, 
+                to_char(t.created_at, 'YYYY-MM-DD HH24:MI') as ts
+         FROM transactions t
+         JOIN items i ON t.item_id = i.id
+         WHERE t.requester ILIKE $1
+         ORDER BY t.created_at DESC
+         LIMIT 50"
+    )
+    .bind(format!("%{}%", search_value))
+    .fetch_all(pool)
+    .await?;
+
+    if rows.is_empty() {
+        print_error(&theme, "Tidak ditemukan");
+    } else {
+        println!("\n{}{}Hasil: {} transaksi{}", BOLD, FG_GREEN, rows.len(), RESET);
+        println!("{:<5} {:<10} {:<15} {:<4} {:>6} {:>6} {:<12} {}", "ID", "Kode", "Item", "Tipe", "Qty", "Stok", "Requester", "Tanggal");
+        println!("{}", "-".repeat(80));
+        for (id, code, name, ttype, qty, stock, req, ts) in &rows {
+            println!("{:<5} {:<10} {:<15} {:<4} {:>6} {:>6} {:<12} {}", 
+                id, code, truncate_to_width(name, 15), ttype, qty, stock, truncate_to_width(req, 12), ts);
+        }
+    }
+    
+    prompt("\nTekan Enter...")?;
+    let mut _dummy = String::new();
+    io::stdin().read_line(&mut _dummy).ok();
+    Ok(())
+}
+
 fn login() -> Result<User, String> {
     let users = get_users();
     
@@ -340,166 +815,6 @@ fn login() -> Result<User, String> {
         }
         println!("{}{}❌ Input tidak valid!{}", BOLD, FG_RED, RESET);
     }
-}
-
-async fn input_transaction(
-    pool: &sqlx::PgPool,
-    trans_type: &str,
-    servant: &User,
-) -> Result<(), Box<dyn std::error::Error>> {
-    clear_screen();
-    let theme = get_theme();
-    let width = get_width(BANNER_WIDTH);
-    let title = match trans_type {
-        "IN" => "TRANSAKSI MASUK",
-        "OUT" => "TRANSAKSI KELUAR",
-        _ => "TRANSAKSI",
-    };
-    // Tampilkan header konsisten dengan section spesifik
-    let subtitle = format!("Petugas: {}", servant.name);
-    print_menu_combined("SISTEM PPIC", &subtitle, title, &[], width);
-
-    // Get requester, role, and location once (untuk multiple items)
-    let (requester, req_role, location) = if trans_type == "IN" {
-        // Untuk kedatangan: tanya No P.O satu kali, role default "-"
-        prompt("No P.O: ")?;
-        let mut po_number = String::new();
-        io::stdin().read_line(&mut po_number)?;
-        (po_number.trim().to_string(), "-".to_string(), "".to_string())
-    } else {
-        // Untuk permintaan: tanya requester + role + lokasi satu kali
-        prompt("Nama requester: ")?;
-        let mut requester = String::new();
-        io::stdin().read_line(&mut requester)?;
-        let requester = requester.trim();
-
-        println!("\nRole:");
-        println!("1. maintenance");
-        println!("2. production");
-        println!("3. order");
-        println!("4. titipan");
-        println!("5. tidak stok");
-        prompt("Pilih role (1-5): ")?;
-        let mut req_role_choice = String::new();
-        io::stdin().read_line(&mut req_role_choice)?;
-        
-        let req_role = match req_role_choice.trim() {
-            "1" => "maintenance",
-            "2" => "production",
-            "3" => "order",
-            "4" => "titipan",
-            "5" => "tidak stok",
-            _ => {
-                println!("{}{}❌ Pilihan role tidak valid!{}", BOLD, FG_RED, RESET);
-                return Ok(());
-            }
-        };
-
-        prompt("Lokasi penggunaan: ")?;
-        let mut location = String::new();
-        io::stdin().read_line(&mut location)?;
-
-        (requester.to_string(), req_role.to_string(), location.trim().to_string())
-    };
-
-    // Loop untuk input multiple items
-    loop {
-        prompt("Code item: ")?;
-        let mut code = String::new();
-        io::stdin().read_line(&mut code)?;
-        let code = code.trim().to_uppercase();
-
-        prompt("Nama item: ")?;
-        let mut item_name = String::new();
-        io::stdin().read_line(&mut item_name)?;
-        let item_name = item_name.trim();
-
-        prompt("Jumlah: ")?;
-        let mut qty_s = String::new();
-        io::stdin().read_line(&mut qty_s)?;
-        let quantity: i32 = qty_s.trim().parse().unwrap_or(0);
-
-        // Insert item if not exists
-        sqlx::query(
-            "INSERT INTO items (code, name) VALUES ($1, $2) ON CONFLICT (code) DO NOTHING"
-        )
-        .bind(&code)
-        .bind(item_name)
-        .execute(pool)
-        .await?;
-
-        // Get current stock
-        let result = sqlx::query_as::<_, (i32,)>(
-            "SELECT COALESCE(stock, 0) FROM items WHERE code = $1"
-        )
-        .bind(&code)
-        .fetch_optional(pool)
-        .await?;
-
-        let current_stock = match result {
-            Some((stock,)) => stock,
-            None => {
-                sqlx::query("INSERT INTO items (code, name, stock) VALUES ($1, $2, 0)")
-                    .bind(&code)
-                    .bind(item_name)
-                    .execute(pool)
-                    .await?;
-                0
-            }
-        };
-
-        let new_stock = if trans_type == "IN" {
-            current_stock + quantity
-        } else {
-            (current_stock - quantity).max(0)
-        };
-
-        sqlx::query("UPDATE items SET stock = $1 WHERE code = $2")
-            .bind(new_stock)
-            .bind(&code)
-            .execute(pool)
-            .await?;
-
-        let (item_id,): (i32,) = sqlx::query_as(
-            "SELECT id FROM items WHERE code = $1"
-        )
-        .bind(&code)
-        .fetch_one(pool)
-        .await?;
-
-        sqlx::query(
-            "INSERT INTO transactions (code, item_id, type, quantity, stock_after, requester, requester_role, servant, location)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
-        )
-        .bind(&code)
-        .bind(item_id)
-        .bind(trans_type)
-        .bind(quantity)
-        .bind(new_stock)
-        .bind(&requester)
-        .bind(&req_role)
-        .bind(&servant.name)
-        .bind(&location)
-        .execute(pool)
-        .await?;
-
-        print_success(&theme, "Berhasil disimpan");
-        println!("   Kode: {}", code);
-        println!("   Barang: {}", item_name);
-        println!("   Jumlah: {} {} → Sisa: {}", quantity, trans_type, new_stock);
-
-        // Tanya tambah item lagi?
-        prompt("Tambah lagi? (y/n): ")?;
-        let mut add_more = String::new();
-        io::stdin().read_line(&mut add_more)?;
-        if add_more.trim().to_lowercase() != "y" {
-            break;
-        }
-    }
-
-    clear_screen();
-
-    Ok(())
 }
 
 async fn show_report(
@@ -588,12 +903,9 @@ async fn show_report(
     } else {
         // Jika filter, tanya periode
         println!("\nPeriode:");
-        println!("1. Hari ini");
-        println!("2. 7 hari terakhir");
-        println!("3. 30 hari terakhir");
-        println!("4. 365 hari terakhir");
-        println!("5. Semua");
-        prompt("Pilih periode (1-5): ")?;
+        println!("1. Custom (pilih tanggal/bulan/tahun)");
+        println!("2. Semua");
+        prompt("Pilih periode (1-2): ")?;
 
         let mut period_choice = String::new();
         io::stdin().read_line(&mut period_choice)?;
@@ -601,20 +913,66 @@ async fn show_report(
         let now = Local::now();
         match period_choice.trim() {
             "1" => {
-                let today = now.date_naive();
-                (today.and_hms_opt(0, 0, 0).unwrap(), today.and_hms_opt(23, 59, 59).unwrap())
-            },
-            "2" => {
-                let week_ago = now - Duration::days(7);
-                (week_ago.naive_local(), now.naive_local())
-            },
-            "3" => {
-                let month_ago = now - Duration::days(30);
-                (month_ago.naive_local(), now.naive_local())
-            },
-            "4" => {
-                let year_ago = now - Duration::days(365);
-                (year_ago.naive_local(), now.naive_local())
+                println!("\nPilih mode custom:");
+                println!("1. Tanggal (YYYY-MM-DD)");
+                println!("2. Bulan (YYYY-MM)");
+                println!("3. Tahun (YYYY)");
+                prompt("Pilih mode (1-3): ")?;
+                let mut mode = String::new();
+                io::stdin().read_line(&mut mode)?;
+                match mode.trim() {
+                    "1" => {
+                        prompt("Masukkan tanggal (YYYY-MM-DD): ")?;
+                        let mut tgl = String::new();
+                        io::stdin().read_line(&mut tgl)?;
+                        let tgl = tgl.trim();
+                        if let Ok(date) = chrono::NaiveDate::parse_from_str(tgl, "%Y-%m-%d") {
+                            (date.and_hms_opt(0,0,0).unwrap(), date.and_hms_opt(23,59,59).unwrap())
+                        } else {
+                            println!("Format tanggal salah, gunakan YYYY-MM-DD. Menampilkan semua.");
+                            (unix_epoch_naive(), now.naive_local())
+                        }
+                    },
+                    "2" => {
+                        prompt("Masukkan bulan (YYYY-MM): ")?;
+                        let mut bln = String::new();
+                        io::stdin().read_line(&mut bln)?;
+                        let bln = bln.trim();
+                        if let Ok(date) = chrono::NaiveDate::parse_from_str(&format!("{}-01", bln), "%Y-%m-%d") {
+                            let start = date.and_hms_opt(0,0,0).unwrap();
+                            // Cari jumlah hari di bulan tsb
+                            let last_day = match date.month() {
+                                1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+                                4 | 6 | 9 | 11 => 30,
+                                2 => if chrono::NaiveDate::from_ymd_opt(date.year(), 2, 29).is_some() { 29 } else { 28 },
+                                _ => 28
+                            };
+                            let end = chrono::NaiveDate::from_ymd_opt(date.year(), date.month(), last_day).unwrap().and_hms_opt(23,59,59).unwrap();
+                            (start, end)
+                        } else {
+                            println!("Format bulan salah, gunakan YYYY-MM. Menampilkan semua.");
+                            (unix_epoch_naive(), now.naive_local())
+                        }
+                    },
+                    "3" => {
+                        prompt("Masukkan tahun (YYYY): ")?;
+                        let mut th = String::new();
+                        io::stdin().read_line(&mut th)?;
+                        let th = th.trim();
+                        if let Ok(year) = th.parse::<i32>() {
+                            let start = chrono::NaiveDate::from_ymd_opt(year, 1, 1).unwrap().and_hms_opt(0,0,0).unwrap();
+                            let end = chrono::NaiveDate::from_ymd_opt(year, 12, 31).unwrap().and_hms_opt(23,59,59).unwrap();
+                            (start, end)
+                        } else {
+                            println!("Format tahun salah, gunakan YYYY. Menampilkan semua.");
+                            (unix_epoch_naive(), now.naive_local())
+                        }
+                    },
+                    _ => {
+                        println!("Pilihan tidak valid. Menampilkan semua.");
+                        (unix_epoch_naive(), now.naive_local())
+                    }
+                }
             },
             _ => {
                 (unix_epoch_naive(), now.naive_local())
@@ -907,10 +1265,11 @@ async fn stok_opname(
     pool: &sqlx::PgPool,
     current_user: &User,
 ) -> Result<(), Box<dyn std::error::Error>> {
+
     clear_screen();
     let width = get_width(BANNER_WIDTH);
     let subtitle = format!("Petugas: {}", current_user.name);
-    print_menu_combined("SISTEM PPIC", &subtitle, "STOCK OPNAME", &[], width);
+    print_menu_combined("SISTEM PPIC", &subtitle, "INPUT STOCK OPNAME", &[], width);
 
     prompt("Nama gudang: ")?;
     let mut warehouse = String::new();
@@ -918,37 +1277,31 @@ async fn stok_opname(
     let warehouse = warehouse.trim().to_string();
 
     let mut lines: Vec<OpnameLine> = Vec::new();
+    let mut default_loc_type = "1".to_string();
 
     loop {
-        println!("\n(Enter kosong untuk selesai)");
-        prompt("Kode item: ")?;
-        let mut code = String::new();
-        io::stdin().read_line(&mut code)?;
-        let code = code.trim().to_uppercase();
-        if code.is_empty() {
-            break;
-        }
-
-        println!("\nTipe lokasi:");
-        println!("1. Rak");
-        println!("2. Palet (1..400)");
-        prompt("Pilih (1-2): ")?;
+        println!("\n(Enter kosong untuk selesai, 'b' untuk batal)");
+        // 1. Pilih lokasi dulu
+        println!("Tipe lokasi: [1] Rak, [2] Palet");
+        prompt(&format!("Pilih (default {}): ", default_loc_type))?;
         let mut loc_type = String::new();
         io::stdin().read_line(&mut loc_type)?;
-        let loc = match loc_type.trim() {
+        let loc_type = if loc_type.trim().is_empty() { &default_loc_type } else { loc_type.trim() };
+
+        let loc = match loc_type {
             "1" => {
-                prompt("Kode rak: ")?;
+                prompt("Kode rak (default R1): ")?;
                 let mut r = String::new();
                 io::stdin().read_line(&mut r)?;
-                format!("RAK {}", r.trim())
+                let r = if r.trim().is_empty() { "R1" } else { r.trim() };
+                format!("RAK {}", r)
             },
             "2" => {
-                prompt("Nomor palet (1..400): ")?;
+                prompt("Nomor palet (1..400, default 1): ")?;
                 let mut p = String::new();
                 io::stdin().read_line(&mut p)?;
                 let p_no: i32 = p.trim().parse().unwrap_or(1).clamp(1, 400);
                 let (row, col) = pallet_coords(p_no);
-                // upsert pallet registry
                 sqlx::query(
                     "INSERT INTO pallets (warehouse, pallet_no, last_seen_by) VALUES ($1,$2,$3)
                      ON CONFLICT (warehouse, pallet_no) DO UPDATE SET last_seen_at = CURRENT_TIMESTAMP, last_seen_by = EXCLUDED.last_seen_by"
@@ -958,89 +1311,50 @@ async fn stok_opname(
                 .bind(&current_user.name)
                 .execute(pool)
                 .await?;
-
                 format!("PALET #{:03} (R{} C{})", p_no, row, col)
             },
-            _ => {
-                prompt("Nomor palet (1..400): ")?;
-                let mut p = String::new();
-                io::stdin().read_line(&mut p)?;
-                let p_no: i32 = p.trim().parse().unwrap_or(1).clamp(1, 400);
-                let (row, col) = pallet_coords(p_no);
-                // upsert pallet registry
-                sqlx::query(
-                    "INSERT INTO pallets (warehouse, pallet_no, last_seen_by) VALUES ($1,$2,$3)
-                     ON CONFLICT (warehouse, pallet_no) DO UPDATE SET last_seen_at = CURRENT_TIMESTAMP, last_seen_by = EXCLUDED.last_seen_by"
-                )
-                .bind(&warehouse)
-                .bind(p_no)
-                .bind(&current_user.name)
-                .execute(pool)
-                .await?;
-
-                format!("PALET #{:03} (R{} C{})", p_no, row, col)
-            }
+            _ => "RAK R1".to_string(),
         };
 
-        prompt("Jumlah hasil hitung: ")?;
+        // 2. Input kode item (auto-suggest)
+        let item = select_or_create_item(pool).await?;
+        if item.is_none() {
+            break;
+        }
+        let (code, item_name, expected_stock) = item.unwrap();
+
+        // 3. Input jumlah hitung
+        prompt(&format!("Jumlah hasil hitung (stok sistem: {}): ", expected_stock))?;
         let mut qty_s = String::new();
         io::stdin().read_line(&mut qty_s)?;
         let counted: i32 = qty_s.trim().parse().unwrap_or(0);
+        if counted < 0 {
+            print_error(&get_theme(), "Jumlah tidak boleh negatif!");
+            continue;
+        }
 
-        // pastikan item ada
-        sqlx::query("INSERT INTO items (code, name) VALUES ($1, $2) ON CONFLICT (code) DO NOTHING")
+        // FIFO info
+        let item_id: Option<(i32,)> = sqlx::query_as("SELECT id FROM items WHERE code = $1")
             .bind(&code)
-            .bind(&code)
-            .execute(pool)
+            .fetch_optional(pool)
             .await?;
-
-        let (item_id, item_name, expected_stock): (i32, String, i32) = sqlx::query_as(
-            "SELECT id, COALESCE(name,''), COALESCE(stock,0) FROM items WHERE code = $1"
-        )
-        .bind(&code)
-        .fetch_one(pool)
-        .await?;
-
-        // ambil FIFO (top 5 IN) - runtime query
-        let fifo_rows: Vec<(Option<NaiveDateTime>, Option<i32>, Option<String>)> = sqlx::query_as(
-            "SELECT created_at, quantity, location
-             FROM transactions
-             WHERE item_id = $1 AND type = 'IN'
-             ORDER BY created_at ASC
-             LIMIT 5"
-        )
-        .bind(item_id)
-        .fetch_all(pool)
-        .await?;
-
-        let fifo_desc: Vec<String> = fifo_rows
-            .into_iter()
-            .map(|(ts, qty, loc_in)| {
+        let mut fifo_desc = Vec::new();
+        if let Some((item_id,)) = item_id {
+            let fifo_rows: Vec<(Option<NaiveDateTime>, Option<i32>, Option<String>)> = sqlx::query_as(
+                "SELECT created_at, quantity, location FROM transactions WHERE item_id = $1 AND type = 'IN' ORDER BY created_at ASC LIMIT 5"
+            )
+            .bind(item_id)
+            .fetch_all(pool)
+            .await?;
+            fifo_desc = fifo_rows.into_iter().map(|(ts, qty, loc_in)| {
                 let ts_val = ts.unwrap_or_else(|| unix_epoch_naive());
                 let qty_val = qty.unwrap_or(0);
                 let loc_val = loc_in.unwrap_or_else(|| "-".to_string());
                 format!("{} | qty {:>4} | lok: {}", ts_val.format("%Y-%m-%d"), qty_val, truncate_to_width(&loc_val, 12))
-            })
-            .collect();
+            }).collect();
+        }
 
         let diff = counted - expected_stock;
-
-        // simpan ke tabel stock_opname
-        sqlx::query(
-            "INSERT INTO stock_opname (warehouse, item_id, code, item_name, location, expected_qty, counted_qty, diff, checked_by)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)"
-        )
-        .bind(&warehouse)
-        .bind(item_id)
-        .bind(&code)
-        .bind(&item_name)
-        .bind(&loc)
-        .bind(expected_stock)
-        .bind(counted)
-        .bind(diff)
-        .bind(&current_user.name)
-        .execute(pool)
-        .await?;
 
         lines.push(OpnameLine {
             code: code.clone(),
@@ -1052,7 +1366,7 @@ async fn stok_opname(
             fifo: fifo_desc,
         });
 
-        println!("-> {} ({}) | stok sistem {} | hitung {} | selisih {}", code, item_name, expected_stock, counted, diff);
+        println!("-> {} ({}) | lokasi: {} | stok sistem {} | hitung {} | selisih {}", code, item_name, loc, expected_stock, counted, diff);
     }
 
     if lines.is_empty() {
@@ -1060,15 +1374,103 @@ async fn stok_opname(
         return Ok(());
     }
 
-    // ringkasan
-    let total_expected: i32 = lines.iter().map(|l| l.expected).sum();
-    let total_counted: i32 = lines.iter().map(|l| l.counted).sum();
-    let total_diff: i32 = lines.iter().map(|l| l.diff).sum();
+    // Ringkasan dan opsi edit/hapus sebelum simpan
+    loop {
+        println!("\n{}{}Ringkasan Input Stock Opname:{}", BOLD, FG_CYAN, RESET);
+        for (i, l) in lines.iter().enumerate() {
+            println!("{}. {} ({}) | lokasi: {} | sistem: {} | hitung: {} | selisih: {}", i+1, l.code, l.item_name, l.location, l.expected, l.counted, l.diff);
+            if !l.fifo.is_empty() {
+                println!("   FIFO: {}", l.fifo.join(", "));
+            }
+        }
+        let total_expected: i32 = lines.iter().map(|l| l.expected).sum();
+        let total_counted: i32 = lines.iter().map(|l| l.counted).sum();
+        let total_diff: i32 = lines.iter().map(|l| l.diff).sum();
+        println!("\nTotal sistem : {}", total_expected);
+        println!("Total hitung : {}", total_counted);
+        println!("Total selisih: {}", total_diff);
 
-    println!("\nRingkasan Opname {}:", warehouse);
-    println!("Total sistem : {}", total_expected);
-    println!("Total hitung : {}", total_counted);
-    println!("Total selisih: {}", total_diff);
+        println!("\nKetik nomor item untuk edit/hapus, atau tekan Enter untuk lanjut simpan.");
+        prompt("Edit/hapus item nomor: ")?;
+        let mut edit_input = String::new();
+        io::stdin().read_line(&mut edit_input)?;
+        let edit_input = edit_input.trim();
+        if edit_input.is_empty() {
+            break;
+        }
+        if let Ok(idx) = edit_input.parse::<usize>() {
+            if idx >= 1 && idx <= lines.len() {
+                let i = idx - 1;
+                println!("1) Edit item\n2) Hapus item\n0) Batal");
+                prompt("Pilih aksi: ")?;
+                let mut aksi = String::new();
+                io::stdin().read_line(&mut aksi)?;
+                match aksi.trim() {
+                    "1" => {
+                        // Edit item
+                        prompt("Jumlah baru: ")?;
+                        let mut qty_s = String::new();
+                        io::stdin().read_line(&mut qty_s)?;
+                        let counted: i32 = qty_s.trim().parse().unwrap_or(lines[i].counted);
+                        let diff = counted - lines[i].expected;
+                        lines[i].counted = counted;
+                        lines[i].diff = diff;
+                        println!("Item berhasil diupdate.");
+                    },
+                    "2" => {
+                        lines.remove(i);
+                        println!("Item dihapus.");
+                    },
+                    _ => println!("Batal.")
+                }
+            }
+        }
+    }
+
+    if lines.is_empty() {
+        println!("Tidak ada data opname.");
+        return Ok(());
+    }
+
+    prompt("Simpan hasil opname? (y/n): ")?;
+    let mut confirm = String::new();
+    io::stdin().read_line(&mut confirm)?;
+    if confirm.trim().to_lowercase() != "y" {
+        println!("Opname dibatalkan.");
+        return Ok(());
+    }
+
+    // Simpan ke database
+    for l in &lines {
+        // pastikan item ada
+        sqlx::query("INSERT INTO items (code, name) VALUES ($1, $2) ON CONFLICT (code) DO NOTHING")
+            .bind(&l.code)
+            .bind(&l.item_name)
+            .execute(pool)
+            .await?;
+
+        let item_id: Option<(i32,)> = sqlx::query_as("SELECT id FROM items WHERE code = $1")
+            .bind(&l.code)
+            .fetch_optional(pool)
+            .await?;
+        if let Some((item_id,)) = item_id {
+            sqlx::query(
+                "INSERT INTO stock_opname (warehouse, item_id, code, item_name, location, expected_qty, counted_qty, diff, checked_by)
+                 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)"
+            )
+            .bind(&warehouse)
+            .bind(item_id)
+            .bind(&l.code)
+            .bind(&l.item_name)
+            .bind(&l.location)
+            .bind(l.expected)
+            .bind(l.counted)
+            .bind(l.diff)
+            .bind(&current_user.name)
+            .execute(pool)
+            .await?;
+        }
+    }
 
     let saved = export_opname_to_txt(&warehouse, &current_user.name, &lines)?;
     println!("✅ Opname disimpan ke: {}", saved);
@@ -1141,32 +1543,74 @@ async fn audit_opname(
 
     // Periode
     println!("\nPeriode:");
-    println!("1. Hari ini");
-    println!("2. 7 hari terakhir");
-    println!("3. 30 hari terakhir");
-    println!("4. 365 hari terakhir");
-    println!("5. Semua");
-    prompt("Pilih periode (1-5): ")?;
+    println!("1. Custom (pilih tanggal/bulan/tahun)");
+    println!("2. Semua");
+    prompt("Pilih periode (1-2): ")?;
     let mut period_choice = String::new();
     io::stdin().read_line(&mut period_choice)?;
 
     let now = Local::now();
     let (start_date, end_date) = match period_choice.trim() {
         "1" => {
-            let today = now.date_naive();
-            (today.and_hms_opt(0, 0, 0).unwrap(), today.and_hms_opt(23, 59, 59).unwrap())
-        },
-        "2" => {
-            let week_ago = now - Duration::days(7);
-            (week_ago.naive_local(), now.naive_local())
-        },
-        "3" => {
-            let month_ago = now - Duration::days(30);
-            (month_ago.naive_local(), now.naive_local())
-        },
-        "4" => {
-            let year_ago = now - Duration::days(365);
-            (year_ago.naive_local(), now.naive_local())
+            println!("\nPilih mode custom:");
+            println!("1. Tanggal (YYYY-MM-DD)");
+            println!("2. Bulan (YYYY-MM)");
+            println!("3. Tahun (YYYY)");
+            prompt("Pilih mode (1-3): ")?;
+            let mut mode = String::new();
+            io::stdin().read_line(&mut mode)?;
+            match mode.trim() {
+                "1" => {
+                    prompt("Masukkan tanggal (YYYY-MM-DD): ")?;
+                    let mut tgl = String::new();
+                    io::stdin().read_line(&mut tgl)?;
+                    let tgl = tgl.trim();
+                    if let Ok(date) = chrono::NaiveDate::parse_from_str(tgl, "%Y-%m-%d") {
+                        (date.and_hms_opt(0,0,0).unwrap(), date.and_hms_opt(23,59,59).unwrap())
+                    } else {
+                        println!("Format tanggal salah, gunakan YYYY-MM-DD. Menampilkan semua.");
+                        (unix_epoch_naive(), now.naive_local())
+                    }
+                },
+                "2" => {
+                    prompt("Masukkan bulan (YYYY-MM): ")?;
+                    let mut bln = String::new();
+                    io::stdin().read_line(&mut bln)?;
+                    let bln = bln.trim();
+                    if let Ok(date) = chrono::NaiveDate::parse_from_str(&format!("{}-01", bln), "%Y-%m-%d") {
+                        let start = date.and_hms_opt(0,0,0).unwrap();
+                        let last_day = match date.month() {
+                            1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+                            4 | 6 | 9 | 11 => 30,
+                            2 => if chrono::NaiveDate::from_ymd_opt(date.year(), 2, 29).is_some() { 29 } else { 28 },
+                            _ => 28
+                        };
+                        let end = chrono::NaiveDate::from_ymd_opt(date.year(), date.month(), last_day).unwrap().and_hms_opt(23,59,59).unwrap();
+                        (start, end)
+                    } else {
+                        println!("Format bulan salah, gunakan YYYY-MM. Menampilkan semua.");
+                        (unix_epoch_naive(), now.naive_local())
+                    }
+                },
+                "3" => {
+                    prompt("Masukkan tahun (YYYY): ")?;
+                    let mut th = String::new();
+                    io::stdin().read_line(&mut th)?;
+                    let th = th.trim();
+                    if let Ok(year) = th.parse::<i32>() {
+                        let start = chrono::NaiveDate::from_ymd_opt(year, 1, 1).unwrap().and_hms_opt(0,0,0).unwrap();
+                        let end = chrono::NaiveDate::from_ymd_opt(year, 12, 31).unwrap().and_hms_opt(23,59,59).unwrap();
+                        (start, end)
+                    } else {
+                        println!("Format tahun salah, gunakan YYYY. Menampilkan semua.");
+                        (unix_epoch_naive(), now.naive_local())
+                    }
+                },
+                _ => {
+                    println!("Pilihan tidak valid. Menampilkan semua.");
+                    (unix_epoch_naive(), now.naive_local())
+                }
+            }
         },
         _ => {
             (unix_epoch_naive(), now.naive_local())
