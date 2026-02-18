@@ -4,6 +4,11 @@
 docker compose up -d
 docker compose stop
 docker compose start
+=================================
+docker compose config --services  # Lihat nama services
+docker ps  #lihat container runing
+docker compose ps # lihat semua status services
+
 
 /workspaces/Docs/docker-stack.yml
 ==================================

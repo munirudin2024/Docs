@@ -20,6 +20,7 @@ while true; do
   echo "4) Postgres "
   echo "5) Neovim "
   echo "6) Dotnet "
+  echo "7) Jira"
   echo "q) Exit"
   echo ""
   read -p "> " choice
@@ -71,6 +72,11 @@ while true; do
     6)
       echo -e "${YELLOW}Masuk Dotnet...${NC}"
       enter_container dotnet_dev /bin/bash
+      ;;
+
+    7)
+      echo -e "${YELLOW}Masuk Jira Software...${NC}"
+      enter_container jira_software /bin/bash
       ;;
     q)
       echo -e "${GREEN}closed lab${NC}"

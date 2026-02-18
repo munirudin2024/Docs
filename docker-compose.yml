@@ -20,6 +20,7 @@ services:
       retries: 5
     restart: unless-stopped
 
+
   rust:
     image: rust:latest
     container_name: rust_dev
@@ -31,6 +32,27 @@ services:
     networks:
       - internal_net
     command: sleep infinity
+    restart: unless-stopped
+
+  jira:
+    image: atlassian/jira-software:latest
+    container_name: jira_software
+    ports:
+      - "18080:8080"
+    environment:
+      - ATL_JIRA_DB_TYPE=postgres72
+      - ATL_JIRA_DB_HOST=postgres_pgdb
+      - ATL_JIRA_DB_PORT=5432
+      - ATL_JIRA_DB_NAME=pgdb
+      - ATL_JIRA_DB_USER=pguser
+      - ATL_JIRA_DB_PASSWORD_FILE=/run/secrets/pg_password
+    volumes:
+      - jira_data:/var/atlassian/application-data/jira
+      - ./secrets/pg_password.txt:/run/secrets/pg_password:ro
+    networks:
+      - internal_net
+    depends_on:
+      - postgres
     restart: unless-stopped
 
   inventori-be:
@@ -45,7 +67,7 @@ services:
       JWT_SECRET: supersecret
       DATABASE_URL: postgres://pguser:sisfo%401@postgres_pgdb/pgdb
     ports:
-      - "3000:3000"
+      - "13000:3000"
     networks:
       - internal_net
     command: bash -c "export PATH=/usr/local/cargo/bin:$$PATH && cargo run"
@@ -131,3 +153,4 @@ networks:
 
 volumes:
   pgdata:
+  jira_data:
