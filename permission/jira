@@ -1,0 +1,32 @@
+
+Selamat! Kamu sudah berhasil masuk ke container Jira. Berikut langkah-langkah awal untuk belajar dan eksplorasi Jira Software di lingkungan ini:
+
+1. Akses Web UI Jira
+
+Buka browser dan akses: http://localhost:18080
+Ikuti wizard setup awal (pilih bahasa, buat admin, dsb).
+
+2. Setup Database
+
+Karena sudah terhubung ke Postgres (via docker-compose), pilih opsi “Connect to an existing database” saat setup, lalu masukkan:
+
+Host: postgres_pgdb
+Port: 5432
+Database: pgdb
+User: pguser
+Password: (isi sesuai file secrets/pg_password.txt)
+
+3. Eksplorasi Fitur Jira
+
+Buat project baru (Scrum/Kanban/Basic).
+Tambahkan issue/tugas, atur status, dan coba workflow.
+Coba fitur board, backlog, sprint, dan laporan.
+
+4. Belajar Dasar-dasar
+
+Pelajari konsep Issue, Project, Board, Workflow, dan Permission.
+Coba invite user lain (jika ingin simulasi tim).
+
+5. Dokumentasi & Tutorial
+
+Baca dokumentasi resmi: https://support.atlassian.com/jira-software-cloud/docs/

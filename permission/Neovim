@@ -7,3 +7,13 @@ https://neovim.io/doc/user/vimindex.html#index
         - Kamu cukup download filenya dan masukkan ke folder konfigurasi    
         Neovim kamu.
     4. Login: Di dalam Neovim, kamu ketik perintah :Copilot setup. Nanti dia akan kasih kode untuk kamu masukkan ke browser agar akun Student kamu terhubung.
+
+    ===============================================
+
+    Contoh dasar:
+
+Buka file: nvim nama_file
+Mode insert (mengetik): tekan i
+Simpan: tekan Esc, lalu ketik :w dan Enter
+Keluar: tekan :q dan Enter
+Simpan & keluar: :wq
