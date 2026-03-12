@@ -2,18 +2,18 @@ version: "3.8"
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:17
     environment:
       POSTGRES_USER: pguser
       POSTGRES_DB: pgdb
       POSTGRES_PASSWORD_FILE: /run/secrets/pg_password
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./secrets/pg_password.txt:/run/secrets/pg_password:ro
     networks:
       - internal_net
-    secrets:
-      - source: pg_password
-        target: /run/secrets/pg_password
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pguser -d pgdb"]
       interval: 10s
@@ -24,7 +24,10 @@ services:
         condition: on-failure
 
   rust:
-    image: rust:1.76-slim
+    image: rust:latest
+    container_name: rust_dev
+    hostname: rust-power
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./app-rust:/workspace
     working_dir: /workspace
@@ -34,9 +37,36 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+  jira:
+    image: atlassian/jira-software:latest
+    container_name: jira_software
+    ports:
+      - "18080:8080"
+    environment:
+      - ATL_JIRA_DB_TYPE=postgres72
+      - ATL_JIRA_DB_HOST=postgres_pgdb
+      - ATL_JIRA_DB_PORT=5432
+      - ATL_JIRA_DB_NAME=pgdb
+      - ATL_JIRA_DB_USER=pguser
+      - ATL_JIRA_DB_PASSWORD_FILE=/run/secrets/pg_password
+    volumes:
+      - jira_data:/var/atlassian/application-data/jira
+      - ./secrets/pg_password.txt:/run/secrets/pg_password:ro
+    networks:
+      - internal_net
+    depends_on:
+      - postgres
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   kali:
+    build:
+      context: .
+      dockerfile: Dockerfile.kali
     image: kali-pentest:latest
+    container_name: kali_lab
+    hostname: kali-tactical
     networks:
       - internal_net
     cap_add:
@@ -49,6 +79,11 @@ services:
 
   bun:
     image: oven/bun:latest
+    container_name: bun_dev
+    user: "${UID:-1000}:${GID:-1000}"
+    ports:
+      - "5173:5173"
+      - "3000:3000"
     networks:
       - internal_net
     volumes:
@@ -60,7 +95,9 @@ services:
         condition: on-failure
 
   dotnet:
-    image: mcr.microsoft.com/dotnet/sdk:8.0
+    image: mcr.microsoft.com/dotnet/sdk:latest
+    container_name: dotnet_dev
+    user: "${UID:-1000}:${GID:-1000}"
     networks:
       - internal_net
     volumes:
@@ -72,9 +109,15 @@ services:
         condition: on-failure
 
   neovim:
+    build:
+      context: .
+      dockerfile: Dockerfile.neovim
     image: neovim-dev:latest
+    container_name: neovim_dev
+    hostname: neovim-dev
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
-      - ./app-rust:/workspace
+      - .:/workspace
       - ./dotfiles/nvim:/home/dev/.config/nvim:rw
     working_dir: /workspace
     networks:
@@ -86,28 +129,7 @@ services:
       restart_policy:
         condition: on-failure
 
-  firebase:
-    image: firebase-studio:latest
-    volumes:
-      - ./firebase:/workspace
-      - ~/.config/firebase:/home/dev/.config/firebase:rw
-    working_dir: /workspace
-    ports:
-      - "4000:4000"
-      - "8080:8080"
-      - "9099:9099"
-      - "5001:5001"
-      - "5000:5000"
-    environment:
-      - TZ=Asia/Jakarta
-    networks:
-      - internal_net
-    stdin_open: true
-    tty: true
-    command: tail -f /dev/null
-    deploy:
-      restart_policy:
-        condition: on-failure
+
 
 networks:
   internal_net:
@@ -115,6 +137,7 @@ networks:
 
 volumes:
   pgdata:
+  jira_data:
 
 secrets:
   pg_password:
