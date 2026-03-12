@@ -1,7 +1,0 @@
-/target
-
-# Environment variables (jangan commit credentials!)
-.env
-
-# Data exports
-src/data/*.txt
