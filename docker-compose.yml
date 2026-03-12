@@ -116,18 +116,6 @@ services:
     command: tail -f /dev/null
     restart: unless-stopped
 
-  node:
-    image: node:latest
-    container_name: node_dev
-    hostname: node-power
-    user: "${UID:-1000}:${GID:-1000}"
-    volumes:
-      - ./node:/workspace
-    working_dir: /workspace
-    networks:
-      - internal_net
-    command: sleep infinity
-    restart: unless-stopped
 
 networks:
   internal_net:
