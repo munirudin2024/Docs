@@ -1,0 +1,19 @@
+[package]
+name = "wh-ppic-backend"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.102"
+axum = "0.8.8"
+bigdecimal = { version = "0.4.10", features = ["serde"] }
+chrono = { version = "0.4.44", features = ["serde"] }
+crossterm = "0.29.0"
+dotenv = "0.15.0"
+ratatui = "0.30.0"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "macros", "bigdecimal"] }
+thiserror = "2.0.18"
+tokio = { version = "1.50.0", features = ["full"] }
+tower-http = { version = "0.6.8", features = ["cors", "trace"] }

@@ -11,6 +11,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./secrets/pg_password.txt:/run/secrets/pg_password:ro
+      - ./app-rust:/app-rust:ro
     networks:
       - internal_net
     healthcheck:

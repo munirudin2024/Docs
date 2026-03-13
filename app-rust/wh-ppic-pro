@@ -1,0 +1,25 @@
+ini adalah sistem WH PPIC dari nol
+dari belajar schema PostgreSQL 
+sampai jalan di terminal pake Rust!
+
+Recap perjalanan 
+----------------
+✅ Desain schema 30+ tabel WH PPIC
+✅ Belajar SQL: INSERT, SELECT, JOIN
+✅ UPDATE, DELETE, aggregasi
+✅ Subquery & CTE
+✅ Index & optimasi
+✅ Transaction & rollback
+✅ Views & stored procedures
+✅ Implementasi schema di PostgreSQL
+✅ Backend Rust: Axum + SQLx + Ratatui
+✅ TUI dashboard jalan di terminal!
+13 maret 2026
+
+Next step yang bisa dilanjut:
+-----------------------------
+🔲 Tambah tab Barang & Expired di TUI
+🔲 Form input barang masuk di TUI
+🔲 Endpoint API penerimaan barang (alur security → ppic → qc)
+🔲 Auth & role-based access (JWT)
+🔲 Alert realtime stok minimum & expired
