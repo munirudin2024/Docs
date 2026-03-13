@@ -1,53 +1,71 @@
-import { useState } from 'react'
-import ChiSquareFullAnalysis from './components/ChiSquareFullAnalysis'
-import KopSurat from './components/KopSurat'
-import PrintButton from './components/PrintButton'
-import FontSettings from './components/FontSettings'
+import { useState } from "react"
+import KopSurat from "./components/KopSurat"
+import LembarJawaban from "./components/LembarJawaban"
+import FontSetting from "./components/FontSetting"
+import PrintButton from "./components/PrintButton"
+import { useFontSetting } from "./hooks/useFontSetting"
+import { templates } from "./templates"
 
 export default function App() {
-  const [fontFamily, setFontFamily] = useState("'Times New Roman', Times, serif")
-  const [fontSize, setFontSize] = useState(13)
+  const { setting, setSetting } = useFontSetting()
+  const [selectedKey, setSelectedKey] = useState<string>(Object.keys(templates)[0])
+  const [waktu, setWaktu] = useState(templates[Object.keys(templates)[0]].mahasiswa.waktu ?? "")
+  const [judulUjian, setJudulUjian] = useState(templates[Object.keys(templates)[0]].judulUjian)
+  const [semester, setSemester] = useState(templates[Object.keys(templates)[0]].semester)
 
+  const template = templates[selectedKey]
+
+  const handleTemplateChange = (key: string) => {
+    setSelectedKey(key)
+    setWaktu(templates[key].mahasiswa.waktu ?? "")
+    setJudulUjian(templates[key].judulUjian)
+    setSemester(templates[key].semester)
+  }
+
+  console.log("dosen:", template.mahasiswa.dosen)
   return (
-    <div className="app" style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
-      {/* Pengaturan Font */}
-      <FontSettings 
-        fontFamily={fontFamily}
-        setFontFamily={setFontFamily}
-        fontSize={fontSize}
-        setFontSize={setFontSize}
-      />
+    <div>
+      <div className="no-print" style={{
+        display: "flex",
+        gap: "12px",
+        alignItems: "center",
+        padding: "10px 16px",
+        background: "#f5f5f5",
+        borderBottom: "1px solid #ddd",
+      }}>
+        <FontSetting setting={setting} onChange={setSetting} />
+        <PrintButton />
+      </div>
 
-      {/* Tombol Cetak */}
-      <PrintButton targetId="printable-content" fileName="Analisis_Chi_Square_Lengkap" />
-      
-      {/* Konten yang akan dicetak */}
-      <div 
-        id="printable-content"
+      <div
+        id="print-area"
         style={{
-          fontFamily: fontFamily,
-          fontSize: `${fontSize}px`
+          width: "100%",
+          maxWidth: "860px",
+          margin: "0 auto",
+          padding: "20px 40px",
+          fontFamily: setting.fontFamily,
+          fontSize: `${setting.fontSize}pt`,
+          boxSizing: "border-box",
         }}
       >
-        <KopSurat 
-          nama="Munhammad Munirudin"
-          nim="230101010183"
-          dosen="Ir Endah Tri Esti Handayani, MMSI"
-          mataKuliah="Statistika dan Probabilitas"
-          kelas="SI302"
-          prodi="Sistem Informasi"
+        <KopSurat
+          {...template.mahasiswa}
+          judulUjian={judulUjian}
+          onJudulUjianChange={setJudulUjian}
+          semester={semester}
+          onSemesterChange={setSemester}
+          selectedKey={selectedKey}
+          onTemplateChange={handleTemplateChange}
+          waktu={waktu}
+          onWaktuChange={setWaktu}
         />
-        
-        <h1 style={{ 
-          fontSize: `${Math.round(fontSize * 1.5)}px`, 
-          marginTop: '24px', 
-          textAlign: 'center',
-          color: '#1e3a5f'
-        }}>
-          Analisis Chi-Square: Jenis Kelamin vs Pilihan Kopi
-        </h1>
-        
-        <ChiSquareFullAnalysis />
+        <LembarJawaban
+          soalList={template.soalList}
+          nama={template.mahasiswa.nama}
+          waktu={waktu}
+          dosen={template.mahasiswa.dosen}
+        />
       </div>
     </div>
   )
