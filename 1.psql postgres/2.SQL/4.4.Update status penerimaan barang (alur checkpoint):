@@ -1,0 +1,21 @@
+-- Security approve
+UPDATE penerimaan_barang
+SET status = 'SECURITY_OK'
+WHERE no_penerimaan = 'GRN-2024-001'
+AND status = 'PENDING';
+
+-- PPIC approve
+UPDATE penerimaan_barang
+SET status = 'PPIC_OK'
+WHERE no_penerimaan = 'GRN-2024-001'
+AND status = 'SECURITY_OK';  -- harus security ok dulu!
+
+-----------------
+Selalu pakai WHERE! Update tanpa WHERE = semua baris ikut berubah. Ini salah satu kesalahan paling fatal di SQL.
+
+-- ❌ BAHAYA! Semua harga berubah jadi 0
+UPDATE barang SET harga_beli = 0;
+
+-- ✅ Aman, hanya 1 barang
+UPDATE barang SET harga_beli = 0
+WHERE kode_barang = 'ADT-001';

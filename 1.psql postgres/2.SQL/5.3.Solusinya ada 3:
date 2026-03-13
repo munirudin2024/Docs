@@ -1,0 +1,18 @@
+-- Opsi 1: Soft delete (RECOMMENDED untuk WH PPIC)
+-- Jangan hapus, tapi tandai tidak aktif
+UPDATE supplier SET is_active = FALSE
+WHERE id_supplier = 1;
+
+-- Opsi 2: Hapus anaknya dulu, baru induknya
+DELETE FROM barang WHERE id_supplier = 1;
+DELETE FROM supplier WHERE id_supplier = 1;
+
+-- Opsi 3: Pakai CASCADE saat bikin tabel
+-- (otomatis hapus barang kalau supplier dihapus)
+FOREIGN KEY (id_supplier) REFERENCES supplier(id_supplier)
+ON DELETE CASCADE  -- hati-hati pakai ini!
+
+
+------------------------
+Untuk sistem WH PPIC, hampir tidak pernah hard delete! Data transaksi harus tersimpan untuk audit. Selalu pakai soft delete (is_active = FALSE).
+

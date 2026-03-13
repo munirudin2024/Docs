@@ -1,0 +1,11 @@
+CREATE TABLE penerimaan_barang (
+    id_penerimaan SERIAL PRIMARY KEY,
+    no_penerimaan VARCHAR(30) UNIQUE NOT NULL,  -- nomor dokumen GRN
+    id_supplier INT NOT NULL,
+    no_po VARCHAR(30) NOT NULL,
+    tanggal_datang TIMESTAMP DEFAULT NOW(),
+    status VARCHAR(20) DEFAULT 'PENDING',
+    -- status: PENDING → SECURITY_OK → PPIC_OK → QC_OK → WH_OK / REJECTED
+
+    FOREIGN KEY (id_supplier) REFERENCES supplier(id_supplier)
+);

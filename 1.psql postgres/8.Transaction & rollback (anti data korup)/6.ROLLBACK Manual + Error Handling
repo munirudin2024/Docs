@@ -1,0 +1,23 @@
+BEGIN;
+
+  UPDATE stok
+  SET stok_tersedia = stok_tersedia - 500
+  WHERE id_barang = 5;
+
+  -- Cek apakah stok jadi negatif
+  DO $$
+  DECLARE
+      v_stok NUMERIC;
+  BEGIN
+      SELECT stok_tersedia INTO v_stok
+      FROM stok WHERE id_barang = 5;
+
+      IF v_stok < 0 THEN
+          RAISE EXCEPTION 'Stok tidak cukup! Stok tersedia: %', v_stok;
+      END IF;
+  END $$;
+
+COMMIT;
+
+-- Kalau RAISE EXCEPTION → otomatis ROLLBACK
+-- Stok tidak jadi berkurang

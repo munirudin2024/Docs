@@ -1,0 +1,22 @@
+# Alur status di database
+penerimaan_barang.status berubah step by step:
+
+PENDING
+  → SECURITY_OK   (setelah security approve)
+  → PPIC_OK       (setelah ppic approve)
+  → QC_OK         (setelah qc approve)
+  → WH_MASUK      (barang sudah masuk gudang)
+  → REJECTED      (kalau ada yang nolak di tahap manapun)
+--------------------------------------------------
+# Visualisasi kode lokasi:
+GDG01 - A - R03 - L2
+  │      │    │    │
+  │      │    │    └── Level 2 (tingkat rak)
+  │      │    └─────── Rak nomor 03
+  │      └──────────── Zona A (Raw Material)
+  └─────────────────── Gudang 01
+-------------------------------------------
+# Di aplikasi nanti, form input-nya bakal dropdown bertingkat:
+Pilih Gudang  : [Gudang 01 ▼]
+Pilih Zona    : [Zona A - Raw Material ▼]
+Pilih Lokasi  : [Rak 03 - Level 2 ▼]

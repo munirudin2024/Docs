@@ -1,0 +1,10 @@
+BEGIN;        -- mulai transaction
+
+  -- semua query di sini dianggap 1 paket
+  query 1...
+  query 2...
+  query 3...
+
+COMMIT;       -- simpan semua perubahan
+-- atau
+ROLLBACK;     -- batalkan semua perubahan

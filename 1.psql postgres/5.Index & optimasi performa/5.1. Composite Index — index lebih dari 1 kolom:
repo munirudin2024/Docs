@@ -1,0 +1,18 @@
+-- Kalau sering filter bersamaan, bikin composite
+CREATE INDEX idx_stok_barang_gudang 
+ON stok(id_barang, id_gudang);
+
+-- Query ini langsung kena index
+SELECT * FROM stok 
+WHERE id_barang = 5 AND id_gudang = 1;
+
+---------------------------
+Urutan kolom penting! Index (id_barang, id_gudang) bisa dipakai untuk filter id_barang saja, tapi tidak bisa untuk filter id_gudang saja.
+---------------------------
+
+-- ✅ Kena index (kolom pertama ada)
+WHERE id_barang = 5
+WHERE id_barang = 5 AND id_gudang = 1
+
+-- ❌ Tidak kena index (kolom pertama tidak ada)
+WHERE id_gudang = 1

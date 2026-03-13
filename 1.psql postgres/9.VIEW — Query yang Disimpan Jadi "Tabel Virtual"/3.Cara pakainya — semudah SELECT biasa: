@@ -1,0 +1,11 @@
+-- Semua stok
+SELECT * FROM vw_stok_harian;
+
+-- Filter gudang tertentu
+SELECT * FROM vw_stok_harian
+WHERE nama_gudang = 'Gudang 01';
+
+-- Yang perlu perhatian
+SELECT * FROM vw_stok_harian
+WHERE status_stok IN ('HABIS', 'HAMPIR HABIS')
+ORDER BY status_stok;

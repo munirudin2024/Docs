@@ -1,0 +1,26 @@
+CREATE OR REPLACE FUNCTION fn_generate_no_transaksi(
+    p_prefix VARCHAR  -- 'TM', 'PO', 'GRN', dll
+)
+RETURNS VARCHAR AS $$
+DECLARE
+    v_tanggal VARCHAR;
+    v_urutan  INT;
+    v_result  VARCHAR;
+BEGIN
+    v_tanggal := TO_CHAR(NOW(), 'YYYYMMDD');
+    
+    -- Hitung urutan hari ini
+    EXECUTE format(
+        'SELECT COUNT(*) + 1 FROM %I WHERE no_%I LIKE $1',
+        'transaksi_masuk', 'transaksi'
+    )
+    INTO v_urutan
+    USING p_prefix || '-' || v_tanggal || '%';
+    
+    v_result := p_prefix || '-' || v_tanggal || '-' || 
+                LPAD(v_urutan::TEXT, 4, '0');
+    
+    RETURN v_result;
+    -- Contoh hasil: TM-20240315-0001
+END;
+$$ LANGUAGE plpgsql;

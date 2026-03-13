@@ -1,0 +1,22 @@
+CREATE TABLE form_serah_terima (
+    id_serah_terima SERIAL PRIMARY KEY,
+    no_serah_terima VARCHAR(30) UNIQUE NOT NULL,
+    id_permintaan INT NOT NULL,
+    tanggal_kirim TIMESTAMP DEFAULT NOW(),
+    nama_pengirim VARCHAR(100),      -- petugas WH
+    nama_penerima VARCHAR(100),      -- penerima di dept
+    status VARCHAR(20) DEFAULT 'MENUNGGU_KONFIRMASI',
+    -- MENUNGGU_KONFIRMASI → CONFIRMED → SELESAI
+
+    -- konfirmasi pengirim & penerima (anti-fraud)
+    konfirmasi_pengirim BOOLEAN DEFAULT FALSE,
+    waktu_konfirmasi_pengirim TIMESTAMP,
+    konfirmasi_penerima BOOLEAN DEFAULT FALSE,
+    waktu_konfirmasi_penerima TIMESTAMP,
+    konfirmasi_kepala_dept BOOLEAN DEFAULT FALSE,
+    waktu_konfirmasi_kepala TIMESTAMP,
+
+    catatan TEXT,
+
+    FOREIGN KEY (id_permintaan) REFERENCES permintaan_barang(id_permintaan)
+);

@@ -1,0 +1,42 @@
+src/main.rs — Entry point
+-----------
+
+mod db;
+mod errors;
+mod models;
+mod handlers;
+mod routes;
+
+use dotenv::dotenv;
+
+#[tokio::main]
+async fn main() {
+    // Load .env
+    dotenv().ok();
+
+    // Setup logging
+    tracing_subscriber::fmt::init();
+
+    // Koneksi database
+    let pool = db::create_pool()
+        .await
+        .expect("Gagal koneksi ke database");
+
+    // Buat router
+    let app = routes::api::create_router(pool);
+
+    // Jalankan server
+    let host = std::env::var("HOST").unwrap_or("0.0.0.0".to_string());
+    let port = std::env::var("PORT").unwrap_or("8080".to_string());
+    let addr = format!("{}:{}", host, port);
+
+    println!("🚀 Server jalan di http://{}", addr);
+
+    let listener = tokio::net::TcpListener::bind(&addr)
+        .await
+        .unwrap();
+
+    axum::serve(listener, app)
+        .await
+        .unwrap();
+}

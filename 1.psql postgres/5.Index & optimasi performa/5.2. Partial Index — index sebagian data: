@@ -1,0 +1,11 @@
+-- Index hanya untuk label yang masih TERSEDIA
+-- Lebih kecil & lebih cepat dari full index
+CREATE INDEX idx_label_tersedia 
+ON label_item(tanggal_expired, id_barang)
+WHERE status = 'TERSEDIA';
+
+-- Query FEFO ini langsung super cepat
+SELECT * FROM label_item
+WHERE id_barang = 5
+AND status = 'TERSEDIA'
+ORDER BY tanggal_expired ASC;

@@ -1,0 +1,13 @@
+
+### Ringkasan semua tabel transaksi keluar:
+```
+jadwal_produksi
+      ↓
+permintaan_barang ──── detail_permintaan
+      ↓                      ↓
+form_serah_terima ──── detail_serah_terima
+                              ↓
+                         label_item (FIFO/FEFO)
+                              ↓
+                        analytics_barang
+                        garansi_barang

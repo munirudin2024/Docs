@@ -1,0 +1,15 @@
+CREATE TABLE detail_penerimaan (
+    id_detail SERIAL PRIMARY KEY,
+    id_penerimaan INT NOT NULL,
+    id_barang INT NOT NULL,
+    jumlah_po INT,                 -- seharusnya berapa
+    jumlah_datang INT,             -- aktual yang datang
+    satuan VARCHAR(20),
+    harga_satuan NUMERIC(15,2),
+    tanggal_produksi DATE,         -- tgl prd yang lo maksud
+    tanggal_expired DATE,
+    no_batch VARCHAR(50),
+
+    FOREIGN KEY (id_penerimaan) REFERENCES penerimaan_barang(id_penerimaan),
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang)
+);

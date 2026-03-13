@@ -1,0 +1,40 @@
+-- Cek ukuran semua index
+SELECT 
+    schemaname,
+    tablename,
+    indexname,
+    pg_size_pretty(pg_relation_size(indexrelid)) AS ukuran
+FROM pg_stat_user_indexes
+ORDER BY pg_relation_size(indexrelid) DESC;
+
+-- Cek index yang tidak pernah dipakai (kandidat dihapus)
+SELECT 
+    indexrelname AS nama_index,
+    relname AS nama_tabel,
+    idx_scan AS jumlah_dipakai
+FROM pg_stat_user_indexes
+WHERE idx_scan = 0
+ORDER BY relname;
+
+-- Rebuild index yang sudah bloat
+REINDEX INDEX idx_label_fefo;
+
+-- Vacuum & analyze — update statistik query planner
+VACUUM ANALYZE transaksi_masuk;
+VACUUM ANALYZE label_item;
+VACUUM ANALYZE stok;
+```
+
+---
+
+## Ringkasan aturan Index:
+```
+✅ Buat index pada kolom yang sering di WHERE, JOIN, ORDER BY
+✅ Composite index: urutan kolom dari yang paling selektif
+✅ Partial index untuk filter status yang sering dipakai
+✅ Rutin VACUUM ANALYZE supaya statistik akurat
+
+❌ Jangan index semua kolom — malah memperlambat INSERT/UPDATE
+❌ Jangan pakai fungsi di kolom WHERE
+❌ Hindari SELECT * untuk tabel besar
+❌ Hapus index yang tidak pernah dipakai

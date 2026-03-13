@@ -1,0 +1,8 @@
+-- Index untuk LIKE search nama barang
+CREATE INDEX idx_barang_nama 
+ON barang USING gin(to_tsvector('indonesian', nama_barang));
+
+-- Query full text search
+SELECT * FROM barang
+WHERE to_tsvector('indonesian', nama_barang) 
+      @@ to_tsquery('tepung');

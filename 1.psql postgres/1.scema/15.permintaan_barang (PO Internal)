@@ -1,0 +1,24 @@
+CREATE TABLE permintaan_barang (
+    id_permintaan SERIAL PRIMARY KEY,
+    no_permintaan VARCHAR(30) UNIQUE NOT NULL,
+    id_jadwal INT,                   -- kalau dari produksi, linked ke jadwal
+    kategori VARCHAR(20) NOT NULL,   -- PRODUKSI / MAINTENANCE / NON_MAINTENANCE
+    area VARCHAR(10),                -- RAW / PM / null (kalau non produksi)
+    departemen VARCHAR(50) NOT NULL,
+    digunakan_untuk TEXT,            -- dikerjakan dimana / untuk apa
+    tanggal_minta TIMESTAMP DEFAULT NOW(),
+    tanggal_dibutuhkan DATE,
+    status VARCHAR(20) DEFAULT 'PENDING',
+    -- PENDING → APPROVED_DEPT → APPROVED_WH → PROSES → SELESAI
+
+    -- peminta
+    nama_peminta VARCHAR(100),
+    id_peminta INT,                  -- FK ke tabel users nanti
+
+    -- approval kepala dept (anti-fraud)
+    approved_by_dept VARCHAR(100),
+    tanggal_approval_dept TIMESTAMP,
+    catatan_dept TEXT,
+
+    FOREIGN KEY (id_jadwal) REFERENCES jadwal_produksi(id_jadwal)
+);

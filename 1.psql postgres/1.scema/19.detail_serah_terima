@@ -1,0 +1,23 @@
+CREATE TABLE detail_serah_terima (
+    id_detail SERIAL PRIMARY KEY,
+    id_serah_terima INT NOT NULL,
+    id_barang INT NOT NULL,
+    id_label INT,                    -- label fisik yang dikirim (area RAW)
+    no_barcode VARCHAR(100),         -- scan barcode
+    no_batch_supplier VARCHAR(50),   -- fokus area PM
+    tanggal_barang_datang DATE,      -- kapan barang ini masuk WH
+    tanggal_expired DATE,
+    jumlah_diminta NUMERIC(10,2),
+    jumlah_dikirim NUMERIC(10,2),    -- aktual yang dikirim
+    jumlah_sisa NUMERIC(10,2),       -- sisa di WH setelah pengiriman
+    satuan VARCHAR(20),
+    keterangan TEXT,
+
+    -- untuk non produksi
+    jam_pengambilan TIMESTAMP,
+    digunakan_dimana TEXT,
+
+    FOREIGN KEY (id_serah_terima) REFERENCES form_serah_terima(id_serah_terima),
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang),
+    FOREIGN KEY (id_label) REFERENCES label_item(id_label)
+);

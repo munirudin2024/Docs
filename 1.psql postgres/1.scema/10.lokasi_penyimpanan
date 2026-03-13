@@ -1,0 +1,16 @@
+CREATE TABLE lokasi_penyimpanan (
+    id_lokasi SERIAL PRIMARY KEY,
+    id_zona INT NOT NULL,
+    jenis VARCHAR(10) NOT NULL,      -- RAK / PALET / LANTAI
+    kode_lokasi VARCHAR(20) UNIQUE NOT NULL,  -- GDG01-A-R01-L2 (gudang-zona-rak-level)
+    no_rak VARCHAR(10),              -- R01, R02
+    no_palet VARCHAR(10),            -- P01, P02
+    baris INT,                       -- baris ke berapa
+    kolom INT,                       -- kolom ke berapa
+    level INT,                       -- level/tingkat ke berapa
+    kapasitas NUMERIC(10,2),         -- kapasitas per lokasi
+    is_occupied BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+
+    FOREIGN KEY (id_zona) REFERENCES zona_gudang(id_zona)
+);

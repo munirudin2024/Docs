@@ -1,0 +1,2 @@
+CTE itu kayak bikin tabel sementara yang bisa dipake di query berikutnya. Syntax-nya pakai WITH.
+Kalau subquery itu query di dalam kurung, CTE itu query yang diberi nama dan ditaruh di atas.

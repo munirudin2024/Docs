@@ -1,0 +1,31 @@
+CREATE VIEW vw_penerimaan_lengkap AS
+SELECT 
+    pb.no_penerimaan,
+    pb.tanggal_datang,
+    pb.status,
+    s.nama_supplier,
+    s.no_telepon AS telp_supplier,
+
+    -- ekspedisi
+    e.nama_ekspedisi,
+    e.jenis_kendaraan,
+    e.no_polisi,
+    e.nama_pengemudi,
+
+    -- checkpoint
+    cs.nama_petugas  AS petugas_security,
+    cs.shift,
+    cs.status        AS status_security,
+    cp.nama_petugas  AS petugas_ppic,
+    cp.status        AS status_ppic,
+    cq.nama_petugas  AS petugas_qc,
+    cq.keputusan     AS keputusan_qc,
+    cq.jumlah_ok,
+    cq.jumlah_reject
+
+FROM penerimaan_barang pb
+INNER JOIN supplier s             ON pb.id_supplier  = s.id_supplier
+LEFT  JOIN ekspedisi e            ON pb.id_penerimaan = e.id_penerimaan
+LEFT  JOIN checkpoint_security cs ON pb.id_penerimaan = cs.id_penerimaan
+LEFT  JOIN checkpoint_ppic cp     ON pb.id_penerimaan = cp.id_penerimaan
+LEFT  JOIN checkpoint_qc cq       ON pb.id_penerimaan = cq.id_penerimaan;

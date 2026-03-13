@@ -1,0 +1,24 @@
+CREATE OR REPLACE FUNCTION fn_cek_stok(
+    p_id_barang INT,
+    p_id_gudang INT DEFAULT NULL  -- opsional, kalau NULL = semua gudang
+)
+RETURNS NUMERIC AS $$
+DECLARE
+    v_stok NUMERIC;
+BEGIN
+    SELECT COALESCE(SUM(stok_tersedia), 0) INTO v_stok
+    FROM stok
+    WHERE id_barang = p_id_barang
+    AND (p_id_gudang IS NULL OR id_gudang = p_id_gudang);
+    
+    RETURN v_stok;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Cara pakai di query:
+SELECT 
+    kode_barang,
+    nama_barang,
+    fn_cek_stok(id_barang) AS stok_total,
+    fn_cek_stok(id_barang, 1) AS stok_gudang1
+FROM barang;

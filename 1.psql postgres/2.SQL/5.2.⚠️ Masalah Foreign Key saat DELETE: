@@ -1,0 +1,5 @@
+-- ❌ Ini akan ERROR kalau supplier masih punya barang
+DELETE FROM supplier WHERE id_supplier = 1;
+
+-- ERROR: update or delete on table "supplier" violates 
+-- foreign key constraint on table "barang"

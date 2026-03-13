@@ -1,0 +1,15 @@
+CREATE TABLE garansi_barang (
+    id_garansi SERIAL PRIMARY KEY,
+    id_label INT NOT NULL,           -- per label/batch
+    id_barang INT NOT NULL,
+    tanggal_mulai_garansi DATE,
+    tanggal_akhir_garansi DATE,
+    masa_pakai_hari INT,
+    tanggal_mulai_pakai DATE,        -- kapan mulai dipakai
+    prediksi_akhir_pakai DATE,       -- mulai_pakai + masa_pakai
+    status VARCHAR(20) DEFAULT 'AKTIF',
+    -- AKTIF / HAMPIR_HABIS / EXPIRED / RUSAK
+
+    FOREIGN KEY (id_label) REFERENCES label_item(id_label),
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang)
+);

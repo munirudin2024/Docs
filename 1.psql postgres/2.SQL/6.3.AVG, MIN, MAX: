@@ -1,0 +1,8 @@
+-- Rata-rata, harga termurah, termahal per kategori
+SELECT 
+    kategori,
+    AVG(harga_beli) AS rata_harga,
+    MIN(harga_beli) AS harga_termurah,
+    MAX(harga_beli) AS harga_termahal
+FROM barang
+GROUP BY kategori;

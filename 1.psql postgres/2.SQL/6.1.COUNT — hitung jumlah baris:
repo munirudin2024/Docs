@@ -1,0 +1,14 @@
+-- Berapa total barang?
+SELECT COUNT(*) AS total_barang FROM barang;
+
+-- Berapa barang per kategori?
+SELECT 
+    kategori,
+    COUNT(*) AS jumlah_item
+FROM barang
+GROUP BY kategori;
+
+-- Hasil:
+-- kategori | jumlah_item
+-- RAW      | 15
+-- BAG      | 8

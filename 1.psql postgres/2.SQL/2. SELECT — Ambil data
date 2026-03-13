@@ -1,0 +1,57 @@
+Select semua barang:
+--------------------
+SELECT * FROM barang;
+
+Select kolom tertentu aja:
+--------------------------
+SELECT kode_barang, nama_barang, satuan, harga_beli 
+FROM barang;
+
+
+Select dengan filter WHERE:
+---------------------------
+-- Barang dengan stok minimum di atas 50
+SELECT kode_barang, nama_barang, stok_minimum
+FROM barang
+WHERE stok_minimum > 50;
+
+-- Barang kategori RAW saja
+SELECT * FROM barang
+WHERE kategori = 'RAW';
+
+-- Kombinasi kondisi
+SELECT * FROM barang
+WHERE kategori = 'RAW' 
+AND harga_beli < 10000;
+
+
+Select dengan filter WHERE:
+---------------------------
+-- Barang dengan stok minimum di atas 50
+SELECT kode_barang, nama_barang, stok_minimum
+FROM barang
+WHERE stok_minimum > 50;
+
+-- Barang kategori RAW saja
+SELECT * FROM barang
+WHERE kategori = 'RAW';
+
+-- Kombinasi kondisi
+SELECT * FROM barang
+WHERE kategori = 'RAW' 
+AND harga_beli < 10000;
+
+Select dengan ORDER & LIMIT:
+----------------------------
+-- 10 barang termahal
+SELECT nama_barang, harga_beli
+FROM barang
+ORDER BY harga_beli DESC
+LIMIT 10;
+
+-- Barang yang mau expired duluan (FEFO)
+SELECT no_label, no_batch, tanggal_expired
+FROM label_item
+WHERE status = 'TERSEDIA'
+ORDER BY tanggal_expired ASC
+LIMIT 5;

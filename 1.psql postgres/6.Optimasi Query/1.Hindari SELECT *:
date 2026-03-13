@@ -1,0 +1,8 @@
+-- ❌ Lambat — ambil semua kolom walau tidak perlu
+SELECT * FROM transaksi_masuk
+WHERE id_barang = 5;
+
+-- ✅ Cepat — ambil kolom yang dibutuhkan saja
+SELECT no_transaksi, jumlah, tanggal_masuk, total_harga
+FROM transaksi_masuk
+WHERE id_barang = 5;

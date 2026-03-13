@@ -1,0 +1,19 @@
+-- Lihat transaksi masuk lengkap dengan nama barang & supplier
+SELECT 
+    tm.no_transaksi,
+    tm.tanggal_masuk,
+    b.kode_barang,
+    b.nama_barang,
+    tm.jumlah,
+    tm.harga_satuan,
+    tm.total_harga,
+    tm.tanggal_expired,
+    s.nama_supplier,
+    g.nama_gudang,
+    lp.kode_lokasi
+FROM transaksi_masuk tm
+INNER JOIN barang b          ON tm.id_barang  = b.id_barang
+INNER JOIN supplier s        ON tm.id_supplier = s.id_supplier
+INNER JOIN gudang g          ON tm.id_gudang   = g.id_gudang
+INNER JOIN lokasi_penyimpanan lp ON tm.id_lokasi = lp.id_lokasi
+ORDER BY tm.tanggal_masuk DESC;

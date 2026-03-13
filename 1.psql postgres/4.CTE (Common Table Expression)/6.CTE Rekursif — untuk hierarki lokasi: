@@ -1,0 +1,74 @@
+-- Tampilkan semua lokasi dalam 1 gudang secara hierarki
+WITH RECURSIVE hierarki_lokasi AS (
+    -- Titik awal: gudang
+    SELECT 
+        id_gudang AS id,
+        nama_gudang AS nama,
+        'GUDANG' AS tipe,
+        0 AS level,
+        nama_gudang AS path
+    FROM gudang
+    WHERE kode_gudang = 'GDG-01'
+
+    UNION ALL
+
+    -- Zona dalam gudang
+    SELECT 
+        z.id_zona,
+        z.nama_zona,
+        'ZONA',
+        1,
+        h.path || ' → ' || z.nama_zona
+    FROM zona_gudang z
+    INNER JOIN hierarki_lokasi h ON z.id_gudang = h.id
+
+    UNION ALL
+
+    -- Lokasi dalam zona  
+    SELECT 
+        lp.id_lokasi,
+        lp.kode_lokasi,
+        lp.jenis,
+        2,
+        h.path || ' → ' || lp.kode_lokasi
+    FROM lokasi_penyimpanan lp
+    INNER JOIN hierarki_lokasi h ON lp.id_zona = h.id
+    WHERE h.tipe = 'ZONA'
+)
+SELECT level, path, tipe
+FROM hierarki_lokasi
+ORDER BY path;
+
+-- Hasil:
+-- level | path                          | tipe
+-- 0     | Gudang 01                     | GUDANG
+-- 1     | Gudang 01 → Zona A            | ZONA
+-- 2     | Gudang 01 → Zona A → R01-L1   | RAK
+-- 2     | Gudang 01 → Zona A → R01-L2   | RAK
+```
+
+---
+
+## Kapan pakai Subquery vs CTE?
+```
+Subquery → query simpel, sekali pakai, kondisi di WHERE/SELECT
+
+CTE      → query kompleks berlapis, butuh dibaca ulang,
+           hasil dipakai lebih dari sekali,
+           ada hierarki/rekursif
+```
+
+---
+
+## Ringkasan:
+```
+Subquery    → query di dalam () 
+            → cocok untuk kondisi WHERE, IN, EXISTS
+
+CTE (WITH)  → query diberi nama, ditaruh di atas
+            → bisa berantai (CTE 1 → CTE 2 → CTE 3)
+            → lebih mudah dibaca & di-debug
+            → bisa rekursif untuk hierarki
+
+COALESCE()  → kalau NULL, ganti dengan nilai default
+OVER()      → window function, hitung running total

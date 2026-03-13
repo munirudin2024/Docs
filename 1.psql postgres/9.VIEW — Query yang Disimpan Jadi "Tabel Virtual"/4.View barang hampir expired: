@@ -1,0 +1,24 @@
+CREATE VIEW vw_barang_hampir_expired AS
+SELECT 
+    b.kode_barang,
+    b.nama_barang,
+    li.no_label,
+    li.no_batch,
+    li.jumlah,
+    li.tanggal_expired,
+    (li.tanggal_expired - CURRENT_DATE) AS sisa_hari,
+    lp.kode_lokasi,
+    g.nama_gudang,
+    CASE
+        WHEN li.tanggal_expired < CURRENT_DATE      THEN 'SUDAH EXPIRED'
+        WHEN (li.tanggal_expired - CURRENT_DATE) <= 7  THEN 'KRITIS (≤7 hari)'
+        WHEN (li.tanggal_expired - CURRENT_DATE) <= 30 THEN 'WARNING (≤30 hari)'
+        ELSE                                             'PERHATIAN (≤90 hari)'
+    END AS level_alert
+FROM label_item li
+INNER JOIN barang b              ON li.id_barang = b.id_barang
+INNER JOIN lokasi_penyimpanan lp ON li.id_lokasi = lp.id_lokasi
+INNER JOIN zona_gudang z         ON lp.id_zona = z.id_zona
+INNER JOIN gudang g              ON z.id_gudang = g.id_gudang
+WHERE li.status = 'TERSEDIA'
+AND li.tanggal_expired <= CURRENT_DATE + INTERVAL '90 days';

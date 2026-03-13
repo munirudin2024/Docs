@@ -1,0 +1,13 @@
+CREATE TABLE retur_barang (
+    id_retur SERIAL PRIMARY KEY,
+    id_penerimaan INT NOT NULL,
+    id_barang INT NOT NULL,
+    jumlah_retur INT,
+    alasan VARCHAR(20),    -- EXPIRED / RUSAK / SALAH_ITEM / KURANG_MUTU
+    tanggal_retur TIMESTAMP DEFAULT NOW(),
+    status_retur VARCHAR(20),  -- DIKEMBALIKAN / MENUNGGU
+    catatan TEXT,
+
+    FOREIGN KEY (id_penerimaan) REFERENCES penerimaan_barang(id_penerimaan),
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang)
+);

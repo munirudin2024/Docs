@@ -1,0 +1,20 @@
+CREATE TABLE stok (
+    id_stok SERIAL PRIMARY KEY,
+    id_barang INT NOT NULL,
+    id_gudang INT NOT NULL,
+    id_lokasi INT NOT NULL,
+    
+    stok_tersedia NUMERIC(10,2) DEFAULT 0,   -- bisa diambil
+    stok_reserved NUMERIC(10,2) DEFAULT 0,   -- udah di-request tapi belum keluar
+    stok_quarantine NUMERIC(10,2) DEFAULT 0, -- ditahan QC
+    stok_total NUMERIC(10,2)                 -- otomatis
+        GENERATED ALWAYS AS 
+        (stok_tersedia + stok_reserved + stok_quarantine) STORED,
+    
+    updated_at TIMESTAMP DEFAULT NOW(),
+    
+    UNIQUE(id_barang, id_gudang, id_lokasi), -- 1 barang per lokasi = 1 baris
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang),
+    FOREIGN KEY (id_gudang) REFERENCES gudang(id_gudang),
+    FOREIGN KEY (id_lokasi) REFERENCES lokasi_penyimpanan(id_lokasi)
+);

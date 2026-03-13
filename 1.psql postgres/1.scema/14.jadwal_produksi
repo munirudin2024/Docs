@@ -1,0 +1,13 @@
+CREATE TABLE jadwal_produksi (
+    id_jadwal SERIAL PRIMARY KEY,
+    no_jadwal VARCHAR(30) UNIQUE NOT NULL,
+    tanggal_produksi DATE NOT NULL,
+    shift VARCHAR(10),               -- pagi, siang, malam
+    nama_produk VARCHAR(100),
+    target_qty NUMERIC(10,2),
+    satuan VARCHAR(20),
+    status VARCHAR(20) DEFAULT 'DRAFT', -- DRAFT, APPROVED, RUNNING, DONE
+    dibuat_oleh VARCHAR(50),
+    approved_oleh VARCHAR(50),
+    created_at TIMESTAMP DEFAULT NOW()
+);

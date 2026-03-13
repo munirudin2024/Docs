@@ -1,0 +1,6 @@
+Transaction di PostgreSQL mengikuti prinsip ACID:
+-----------------
+A — Atomicity   : semua atau tidak sama sekali
+C — Consistency : data selalu valid sebelum & sesudah
+I — Isolation   : transaction tidak saling ganggu
+D — Durability  : kalau sudah COMMIT, data aman permanen

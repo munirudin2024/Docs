@@ -1,0 +1,4 @@
+-- Hapus supplier yang sudah tidak aktif
+DELETE FROM supplier
+WHERE kode_supplier = 'SUP-999'
+AND is_active = FALSE;

@@ -1,0 +1,8 @@
+# Pastikan PostgreSQL jalan & schema sudah diimport
+cargo run
+```
+
+Kalau berhasil:
+```
+✅ Database terkoneksi!
+🚀 Server jalan di http://0.0.0.0:8080

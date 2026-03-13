@@ -1,0 +1,18 @@
+CREATE TABLE notifikasi_alert (
+    id_alert SERIAL PRIMARY KEY,
+    jenis_alert VARCHAR(30) NOT NULL,
+    -- STOK_MINIMUM / STOK_HABIS / HAMPIR_EXPIRED / SUDAH_EXPIRED
+    -- GARANSI_HABIS / MASA_PAKAI_HABIS / REORDER_POINT
+    id_barang INT,
+    id_label INT,
+    pesan TEXT,
+    level VARCHAR(10),               -- INFO / WARNING / CRITICAL
+    status VARCHAR(20) DEFAULT 'UNREAD',  -- UNREAD / READ / RESOLVED
+    ditujukan_ke INT,                -- id_user atau id_role
+    created_at TIMESTAMP DEFAULT NOW(),
+    resolved_at TIMESTAMP,
+    resolved_by INT,
+
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang),
+    FOREIGN KEY (id_label) REFERENCES label_item(id_label)
+);

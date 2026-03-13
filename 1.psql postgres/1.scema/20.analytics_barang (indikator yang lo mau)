@@ -1,0 +1,29 @@
+CREATE TABLE analytics_barang (
+    id_analytics SERIAL PRIMARY KEY,
+    id_barang INT UNIQUE NOT NULL,
+    
+    -- durasi penyimpanan
+    rata_rata_lama_simpan NUMERIC(10,2),  -- dalam hari
+    maks_lama_simpan NUMERIC(10,2),
+    
+    -- garansi & masa pakai
+    masa_garansi_hari INT,           -- dari supplier
+    masa_pakai_hari INT,             -- estimasi umur pakai
+    prediksi_rusak DATE,             -- kalkulasi otomatis
+    
+    -- moving indicator
+    total_keluar_30hari NUMERIC(10,2),
+    total_keluar_90hari NUMERIC(10,2),
+    kategori_moving VARCHAR(20),     -- FAST / MEDIUM / SLOW / DEAD STOCK
+    
+    -- prediksi habis
+    rata_pemakaian_harian NUMERIC(10,2),
+    prediksi_habis DATE,             -- kalkulasi: stok / rata pemakaian
+    
+    -- reorder
+    harus_beli_sebelum DATE,         -- prediksi_habis - lead time supplier
+    
+    updated_at TIMESTAMP DEFAULT NOW(),
+
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang)
+);

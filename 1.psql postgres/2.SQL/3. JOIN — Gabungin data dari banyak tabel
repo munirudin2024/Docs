@@ -1,0 +1,10 @@
+
+Ini yang paling sering dipakai di WH PPIC!
+
+### Konsep JOIN:
+```
+Tabel A    Tabel B
+id_barang ──→ id_barang
+nama           harga
+               id_supplier ──→ Tabel C
+                                nama_supplier

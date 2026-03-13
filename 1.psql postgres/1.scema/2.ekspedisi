@@ -1,0 +1,13 @@
+CREATE TABLE ekspedisi (
+    id_ekspedisi SERIAL PRIMARY KEY,
+    id_penerimaan INT NOT NULL,
+    nama_ekspedisi VARCHAR(100),
+    jenis_kendaraan VARCHAR(50),   -- truk, pickup, dll
+    no_polisi VARCHAR(20),
+    nama_pengemudi VARCHAR(100),
+    no_sim VARCHAR(30),
+    no_stnk VARCHAR(30),
+    created_at TIMESTAMP DEFAULT NOW(),
+
+    FOREIGN KEY (id_penerimaan) REFERENCES penerimaan_barang(id_penerimaan)
+);

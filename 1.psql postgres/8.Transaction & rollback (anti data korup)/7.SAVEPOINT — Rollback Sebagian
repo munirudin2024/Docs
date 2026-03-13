@@ -1,0 +1,24 @@
+Kadang lo mau rollback hanya sebagian, bukan seluruh transaction:
+----------------------------
+
+BEGIN;
+
+  -- Proses PO pertama
+  INSERT INTO purchase_order (no_po, id_supplier)
+  VALUES ('PO-001', 1);
+
+  SAVEPOINT setelah_po;  -- tandai titik ini
+
+  -- Coba proses detail PO
+  INSERT INTO detail_po (id_po, id_barang, jumlah_order)
+  VALUES (1, 999, 100);  -- id_barang 999 tidak ada!
+
+  -- Kalau error, rollback ke savepoint saja
+  -- PO header tetap tersimpan, detail yang dibatalkan
+  ROLLBACK TO SAVEPOINT setelah_po;
+
+  -- Coba lagi dengan data yang benar
+  INSERT INTO detail_po (id_po, id_barang, jumlah_order)
+  VALUES (1, 5, 100);
+
+COMMIT;

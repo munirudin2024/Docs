@@ -1,0 +1,14 @@
+-- ❌ Lebih lambat untuk data besar
+SELECT * FROM barang
+WHERE id_barang IN (
+    SELECT id_barang FROM transaksi_masuk
+    WHERE tanggal_masuk >= '2024-01-01'
+);
+
+-- ✅ Lebih cepat
+SELECT * FROM barang b
+WHERE EXISTS (
+    SELECT 1 FROM transaksi_masuk tm
+    WHERE tm.id_barang = b.id_barang
+    AND tm.tanggal_masuk >= '2024-01-01'
+);

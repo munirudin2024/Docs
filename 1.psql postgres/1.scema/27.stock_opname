@@ -1,0 +1,36 @@
+CREATE TABLE stock_opname (
+    id_opname SERIAL PRIMARY KEY,
+    no_opname VARCHAR(30) UNIQUE NOT NULL,
+    tanggal_opname DATE NOT NULL,
+    id_gudang INT NOT NULL,
+    jenis VARCHAR(20),               -- FULL / PARTIAL / CYCLE_COUNT
+    status VARCHAR(20) DEFAULT 'DRAFT',
+    -- DRAFT → COUNTING → REVIEW → APPROVED → CLOSED
+    dibuat_oleh INT,
+    approved_oleh INT,
+    catatan TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+
+    FOREIGN KEY (id_gudang) REFERENCES gudang(id_gudang),
+    FOREIGN KEY (dibuat_oleh) REFERENCES users(id_user),
+    FOREIGN KEY (approved_oleh) REFERENCES users(id_user)
+);
+
+CREATE TABLE detail_stock_opname (
+    id_detail SERIAL PRIMARY KEY,
+    id_opname INT NOT NULL,
+    id_barang INT NOT NULL,
+    id_lokasi INT NOT NULL,
+    stok_sistem NUMERIC(10,2),       -- stok menurut database
+    stok_fisik NUMERIC(10,2),        -- hasil hitung fisik
+    selisih NUMERIC(10,2)            -- otomatis
+        GENERATED ALWAYS AS (stok_fisik - stok_sistem) STORED,
+    keterangan_selisih TEXT,         -- kenapa beda? rusak? hilang? salah input?
+    dihitung_oleh INT,
+    waktu_hitung TIMESTAMP,
+
+    FOREIGN KEY (id_opname) REFERENCES stock_opname(id_opname),
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang),
+    FOREIGN KEY (id_lokasi) REFERENCES lokasi_penyimpanan(id_lokasi),
+    FOREIGN KEY (dihitung_oleh) REFERENCES users(id_user)
+);

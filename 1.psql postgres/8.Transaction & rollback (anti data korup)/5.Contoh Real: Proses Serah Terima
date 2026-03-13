@@ -1,0 +1,32 @@
+BEGIN;
+
+  -- Step 1: Update status form serah terima
+  UPDATE form_serah_terima
+  SET 
+      status = 'SELESAI',
+      konfirmasi_penerima = TRUE,
+      waktu_konfirmasi_penerima = NOW()
+  WHERE id_serah_terima = 101;
+
+  -- Step 2: Kurangi stok
+  UPDATE stok
+  SET 
+      stok_tersedia = stok_tersedia - 50,
+      stok_reserved = stok_reserved - 50,
+      updated_at = NOW()
+  WHERE id_barang = 5
+  AND id_gudang = 1;
+
+  -- Step 3: Update label item
+  UPDATE label_item
+  SET status = 'TERPAKAI'
+  WHERE id_label = 230;
+
+  -- Step 4: Catat di detail serah terima
+  INSERT INTO detail_serah_terima (
+      id_serah_terima, id_barang, id_label,
+      jumlah_dikirim, jam_pengambilan
+  )
+  VALUES (101, 5, 230, 50, NOW());
+
+COMMIT;  -- kalau semua berhasil, baru disimpan

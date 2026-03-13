@@ -1,0 +1,34 @@
+
+PPIC buat Jadwal Produksi
+        ↓
+Semua dept lihat jadwal → hitung kebutuhan
+        ↓
+Dept buat PO Internal / Form Permintaan Barang
+        ↓
+Approval Kepala Dept (anti-fraud)
+        ↓
+WH terima permintaan → cek stok
+        ↓
+WH proses FIFO/FEFO → pilih item (label 1-1000)
+        ↓
+WH kirim barang → buat Form Serah Terima
+        ↓
+Pengirim + Penerima konfirmasi (tanda tangan/approval)
+        ↓
+Stok terpotong → analytics update
+
+-------------------------------------------
+3 kategori penerima
+
+TRANSAKSI KELUAR
+├── PRODUKSI
+│     ├── Area RAW (kode ADT)
+│     │     → fokus: label no (1-1000), batch, FIFO+FEFO, barcode
+│     └── Area PM (kode BAG)
+│           → fokus: batch supplier, FIFO saja, 1kg/25kg/premix/byproduct
+│
+└── NON PRODUKSI
+      ├── Maintenance
+      │     → fokus: tgl, item, jumlah, sisa, peminta, petugas, jam, digunakan dimana
+      └── Non-Maintenance
+            → sama dengan maintenance

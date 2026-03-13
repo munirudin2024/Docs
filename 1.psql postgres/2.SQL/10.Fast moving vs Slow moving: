@@ -1,0 +1,33 @@
+SELECT 
+    b.kode_barang,
+    b.nama_barang,
+    SUM(dst.jumlah_dikirim) AS total_keluar_90hari,
+    CASE
+        WHEN SUM(dst.jumlah_dikirim) >= 1000 THEN 'FAST MOVING'
+        WHEN SUM(dst.jumlah_dikirim) >= 100  THEN 'MEDIUM MOVING'
+        WHEN SUM(dst.jumlah_dikirim) > 0     THEN 'SLOW MOVING'
+        ELSE                                      'DEAD STOCK'
+    END AS kategori_moving
+FROM barang b
+LEFT JOIN detail_serah_terima dst ON b.id_barang = dst.id_barang
+    AND dst.jam_pengambilan >= NOW() - INTERVAL '90 days'
+GROUP BY b.id_barang, b.kode_barang, b.nama_barang
+ORDER BY total_keluar_90hari DESC NULLS LAST;
+```
+
+---
+
+## Ringkasan:
+```
+INSERT  → tambah data baru
+UPDATE  → ubah data (SELALU pakai WHERE!)
+DELETE  → hapus data (lebih baik soft delete)
+
+COUNT   → hitung baris
+SUM     → total nilai
+AVG     → rata-rata
+MIN/MAX → terkecil/terbesar
+
+GROUP BY → kelompokkan data
+HAVING   → filter hasil grouping
+WHERE    → filter sebelum grouping

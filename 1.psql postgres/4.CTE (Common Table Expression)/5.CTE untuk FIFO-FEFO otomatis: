@@ -1,0 +1,44 @@
+-- Tentukan label mana yang harus diambil duluan (FEFO)
+-- untuk memenuhi permintaan 500 KG tepung tapioka
+
+WITH 
+-- Ambil semua label tersedia, urutkan expired duluan
+label_fefo AS (
+    SELECT 
+        li.id_label,
+        li.no_label,
+        li.no_batch,
+        li.jumlah,
+        li.tanggal_expired,
+        lp.kode_lokasi,
+        -- hitung running total (akumulasi)
+        SUM(li.jumlah) OVER (
+            ORDER BY li.tanggal_expired ASC
+        ) AS running_total
+    FROM label_item li
+    INNER JOIN lokasi_penyimpanan lp ON li.id_lokasi = lp.id_lokasi
+    WHERE li.id_barang = (
+        SELECT id_barang FROM barang WHERE kode_barang = 'ADT-001'
+    )
+    AND li.status = 'TERSEDIA'
+),
+
+-- Ambil label sampai jumlah terpenuhi (500 KG)
+label_dipilih AS (
+    SELECT *
+    FROM label_fefo
+    WHERE running_total - jumlah < 500  -- ambil sampai cukup
+)
+
+SELECT 
+    no_label,
+    no_batch,
+    jumlah,
+    tanggal_expired,
+    kode_lokasi,
+    running_total
+FROM label_dipilih
+ORDER BY tanggal_expired ASC;
+
+-- Hasil: daftar label yang harus diambil untuk penuhi 500 KG
+-- secara FEFO otomatis!

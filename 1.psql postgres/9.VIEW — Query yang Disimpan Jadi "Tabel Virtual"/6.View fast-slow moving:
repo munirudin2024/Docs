@@ -1,0 +1,28 @@
+CREATE VIEW vw_moving_analysis AS
+WITH pemakaian AS (
+    SELECT 
+        id_barang,
+        SUM(jumlah_dikirim) FILTER (
+            WHERE jam_pengambilan >= NOW() - INTERVAL '30 days'
+        ) AS keluar_30hari,
+        SUM(jumlah_dikirim) FILTER (
+            WHERE jam_pengambilan >= NOW() - INTERVAL '90 days'
+        ) AS keluar_90hari
+    FROM detail_serah_terima
+    GROUP BY id_barang
+)
+SELECT 
+    b.kode_barang,
+    b.nama_barang,
+    b.kategori,
+    COALESCE(p.keluar_30hari, 0) AS keluar_30hari,
+    COALESCE(p.keluar_90hari, 0) AS keluar_90hari,
+    COALESCE(p.keluar_90hari / 90.0, 0) AS rata_per_hari,
+    CASE
+        WHEN COALESCE(p.keluar_90hari, 0) = 0    THEN 'DEAD STOCK'
+        WHEN p.keluar_90hari < 10                 THEN 'SLOW MOVING'
+        WHEN p.keluar_90hari < 100                THEN 'MEDIUM MOVING'
+        ELSE                                           'FAST MOVING'
+    END AS kategori_moving
+FROM barang b
+LEFT JOIN pemakaian p ON b.id_barang = p.id_barang;

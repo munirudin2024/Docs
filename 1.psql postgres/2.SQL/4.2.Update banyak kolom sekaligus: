@@ -1,0 +1,7 @@
+-- Update data supplier
+UPDATE supplier
+SET 
+    email = 'newemail@majujaya.com',
+    no_telepon = '024-9999888',
+    updated_at = NOW()
+WHERE kode_supplier = 'SUP-001';

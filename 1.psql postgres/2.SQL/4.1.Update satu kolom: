@@ -1,0 +1,4 @@
+-- Update harga beli barang
+UPDATE barang
+SET harga_beli = 16000
+WHERE kode_barang = 'ADT-001';

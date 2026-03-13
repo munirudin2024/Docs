@@ -1,0 +1,56 @@
+# Get semua barang
+curl http://localhost:8080/api/barang
+
+# Get barang kategori RAW
+curl "http://localhost:8080/api/barang?kategori=RAW"
+
+# Search barang
+curl "http://localhost:8080/api/barang?search=tepung"
+
+# Create barang baru
+curl -X POST http://localhost:8080/api/barang \
+  -H "Content-Type: application/json" \
+  -d '{
+    "kode_barang": "ADT-001",
+    "nama_barang": "Tepung Tapioka",
+    "kategori": "RAW",
+    "satuan": "KG",
+    "harga_beli": 15000,
+    "stok_minimum": 100
+  }'
+
+# Update barang
+curl -X PUT http://localhost:8080/api/barang/1 \
+  -H "Content-Type: application/json" \
+  -d '{"harga_beli": 16000}'
+```
+
+---
+
+## Struktur API yang akan kita bangun:
+```
+GET    /api/barang              → list semua barang
+POST   /api/barang              → tambah barang
+GET    /api/barang/:id          → detail barang
+PUT    /api/barang/:id          → update barang
+DELETE /api/barang/:id          → soft delete
+
+GET    /api/supplier            → list supplier
+POST   /api/supplier            → tambah supplier
+
+GET    /api/stok                → stok harian
+GET    /api/stok/alert          → stok hampir habis
+
+GET    /api/penerimaan          → list penerimaan
+POST   /api/penerimaan          → buat penerimaan baru
+PUT    /api/penerimaan/:id/security  → approve security
+PUT    /api/penerimaan/:id/ppic      → approve ppic
+PUT    /api/penerimaan/:id/qc        → approve qc
+
+GET    /api/permintaan          → list permintaan keluar
+POST   /api/permintaan          → buat permintaan baru
+POST   /api/serah-terima        → proses serah terima
+
+GET    /api/laporan/stok        → laporan stok
+GET    /api/laporan/moving      → fast/slow moving
+GET    /api/laporan/expired     → hampir expired

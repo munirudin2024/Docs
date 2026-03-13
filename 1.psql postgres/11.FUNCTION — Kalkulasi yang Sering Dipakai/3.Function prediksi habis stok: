@@ -1,0 +1,72 @@
+CREATE OR REPLACE FUNCTION fn_prediksi_habis(
+    p_id_barang INT
+)
+RETURNS DATE AS $$
+DECLARE
+    v_stok_sekarang  NUMERIC;
+    v_rata_per_hari  NUMERIC;
+    v_sisa_hari      INT;
+BEGIN
+    -- Ambil stok sekarang
+    SELECT COALESCE(SUM(stok_tersedia), 0) 
+    INTO v_stok_sekarang
+    FROM stok WHERE id_barang = p_id_barang;
+
+    -- Hitung rata pemakaian 30 hari terakhir
+    SELECT COALESCE(SUM(jumlah_dikirim) / 30.0, 0)
+    INTO v_rata_per_hari
+    FROM detail_serah_terima
+    WHERE id_barang = p_id_barang
+    AND jam_pengambilan >= NOW() - INTERVAL '30 days';
+
+    -- Kalau tidak ada pemakaian, return NULL
+    IF v_rata_per_hari = 0 THEN
+        RETURN NULL;
+    END IF;
+
+    v_sisa_hari := (v_stok_sekarang / v_rata_per_hari)::INT;
+    RETURN CURRENT_DATE + v_sisa_hari;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Cara pakai:
+SELECT 
+    kode_barang,
+    nama_barang,
+    fn_cek_stok(id_barang) AS stok,
+    fn_prediksi_habis(id_barang) AS prediksi_habis,
+    (fn_prediksi_habis(id_barang) - CURRENT_DATE) AS sisa_hari
+FROM barang
+ORDER BY fn_prediksi_habis(id_barang) ASC NULLS LAST;
+```
+
+---
+
+## Ringkasan semua yang udah kita pelajari:
+```
+📐 SCHEMA DESIGN
+   Primary key, foreign key, relasi tabel
+
+📥 CRUD
+   INSERT, SELECT, UPDATE, DELETE
+
+🔗 JOIN
+   INNER JOIN, LEFT JOIN, multi-table join
+
+📊 AGGREGASI
+   COUNT, SUM, AVG, GROUP BY, HAVING
+
+🧩 SUBQUERY & CTE
+   Query bertingkat, WITH, rekursif
+
+⚡ INDEX
+   B-tree, composite, partial index
+   EXPLAIN ANALYZE, VACUUM ANALYZE
+
+🔒 TRANSACTION
+   BEGIN, COMMIT, ROLLBACK
+   SAVEPOINT, FOR UPDATE, Race condition
+
+👁️ VIEW & PROCEDURE
+   VIEW, MATERIALIZED VIEW
+   FUNCTION, STORED PROCEDURE

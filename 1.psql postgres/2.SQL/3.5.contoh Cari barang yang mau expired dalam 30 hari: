@@ -1,0 +1,15 @@
+SELECT 
+    b.kode_barang,
+    b.nama_barang,
+    li.no_label,
+    li.no_batch,
+    li.jumlah,
+    li.tanggal_expired,
+    (li.tanggal_expired - CURRENT_DATE) AS sisa_hari,
+    lp.kode_lokasi
+FROM label_item li
+INNER JOIN barang b             ON li.id_barang = b.id_barang
+INNER JOIN lokasi_penyimpanan lp ON li.id_lokasi = lp.id_lokasi
+WHERE li.status = 'TERSEDIA'
+AND li.tanggal_expired <= CURRENT_DATE + INTERVAL '30 days'
+ORDER BY li.tanggal_expired ASC;

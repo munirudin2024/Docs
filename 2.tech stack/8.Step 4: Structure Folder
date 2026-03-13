@@ -1,0 +1,23 @@
+wh-ppic-backend/
+├── src/
+│   ├── main.rs
+│   ├── db.rs              ← koneksi database
+│   ├── errors.rs          ← error handling
+│   ├── models/            ← struct data
+│   │   ├── mod.rs
+│   │   ├── barang.rs
+│   │   ├── supplier.rs
+│   │   ├── stok.rs
+│   │   └── ...
+│   ├── handlers/          ← logic tiap endpoint
+│   │   ├── mod.rs
+│   │   ├── barang.rs
+│   │   ├── supplier.rs
+│   │   ├── stok.rs
+│   │   └── ...
+│   └── routes/            ← routing URL
+│       ├── mod.rs
+│       └── api.rs
+├── .env
+├── .gitignore
+└── Cargo.toml

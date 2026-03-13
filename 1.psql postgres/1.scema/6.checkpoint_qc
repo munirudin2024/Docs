@@ -1,0 +1,25 @@
+CREATE TABLE checkpoint_qc (
+    id_qc SERIAL PRIMARY KEY,
+    id_penerimaan INT NOT NULL,
+    nama_petugas VARCHAR(100),
+    tanggal_inspeksi TIMESTAMP DEFAULT NOW(),
+
+    -- inspeksi kendaraan
+    kondisi_kendaraan VARCHAR(20),    -- OK / NOT OK
+    catatan_kendaraan TEXT,
+
+    -- inspeksi barang
+    jumlah_ok INT,
+    jumlah_reject INT,
+    alasan_reject TEXT,
+
+    -- keputusan akhir
+    keputusan VARCHAR(20),            -- OK / PARTIAL / REJECT
+    -- OK = semua masuk WH
+    -- PARTIAL = sebagian masuk, sebagian diretur
+    -- REJECT = semua dikembalikan
+
+    catatan TEXT,
+
+    FOREIGN KEY (id_penerimaan) REFERENCES penerimaan_barang(id_penerimaan)
+);

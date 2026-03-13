@@ -1,0 +1,10 @@
+src/models/mod.rs dan src/handlers/mod.rs
+-----------------------------------------
+
+// src/models/mod.rs
+pub mod barang;
+// pub mod supplier;  ← uncomment kalau sudah bikin
+
+// src/handlers/mod.rs
+pub mod barang;
+// pub mod supplier;

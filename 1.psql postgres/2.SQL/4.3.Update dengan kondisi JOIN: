@@ -1,0 +1,5 @@
+-- Update status stok barang yang expired
+UPDATE label_item
+SET status = 'EXPIRED'
+WHERE tanggal_expired < CURRENT_DATE
+AND status = 'TERSEDIA';

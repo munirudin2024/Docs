@@ -1,0 +1,17 @@
+SELECT 
+    DATE_TRUNC('month', dst.jam_pengambilan) AS bulan,
+    pb.departemen,
+    b.kode_barang,
+    b.nama_barang,
+    COUNT(dst.id_detail)          AS frekuensi_ambil,
+    SUM(dst.jumlah_dikirim)       AS total_pemakaian,
+    b.satuan
+FROM detail_serah_terima dst
+INNER JOIN form_serah_terima fst ON dst.id_serah_terima = fst.id_serah_terima
+INNER JOIN permintaan_barang pb  ON fst.id_permintaan   = pb.id_permintaan
+INNER JOIN barang b              ON dst.id_barang        = b.id_barang
+WHERE dst.jam_pengambilan >= NOW() - INTERVAL '3 months'
+GROUP BY 
+    bulan, pb.departemen,
+    b.id_barang, b.kode_barang, b.nama_barang, b.satuan
+ORDER BY bulan DESC, total_pemakaian DESC;

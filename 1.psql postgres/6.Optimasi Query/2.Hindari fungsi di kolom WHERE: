@@ -1,0 +1,8 @@
+-- ❌ Lambat — fungsi di kolom membuat index tidak terpakai
+SELECT * FROM transaksi_masuk
+WHERE EXTRACT(YEAR FROM tanggal_masuk) = 2024;
+
+-- ✅ Cepat — index bisa dipakai
+SELECT * FROM transaksi_masuk
+WHERE tanggal_masuk >= '2024-01-01' 
+AND tanggal_masuk < '2025-01-01';

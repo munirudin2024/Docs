@@ -1,0 +1,12 @@
+WHERE = filter sebelum grouping
+HAVING = filter setelah grouping
+--------------------------------
+-- Supplier yang total transaksinya di atas 50 juta
+SELECT 
+    s.nama_supplier,
+    SUM(tm.total_harga) AS total_nilai
+FROM transaksi_masuk tm
+INNER JOIN supplier s ON tm.id_supplier = s.id_supplier
+GROUP BY s.id_supplier, s.nama_supplier
+HAVING SUM(tm.total_harga) > 50000000
+ORDER BY total_nilai DESC;

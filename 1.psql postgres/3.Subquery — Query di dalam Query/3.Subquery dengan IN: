@@ -1,0 +1,16 @@
+-- Semua transaksi masuk dari supplier kota Semarang
+SELECT * FROM transaksi_masuk
+WHERE id_supplier IN (
+    SELECT id_supplier 
+    FROM supplier 
+    WHERE kota = 'Semarang'
+);
+
+-- Barang yang BELUM PERNAH keluar (dead stock candidate)
+SELECT kode_barang, nama_barang
+FROM barang
+WHERE id_barang NOT IN (
+    SELECT DISTINCT id_barang 
+    FROM detail_serah_terima
+    WHERE jam_pengambilan >= NOW() - INTERVAL '90 days'
+);

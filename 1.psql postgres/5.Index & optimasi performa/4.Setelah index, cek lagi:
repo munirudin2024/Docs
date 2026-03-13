@@ -1,0 +1,11 @@
+EXPLAIN ANALYZE
+SELECT * FROM transaksi_masuk
+WHERE id_barang = 5
+AND tanggal_masuk >= '2024-01-01';
+```
+```
+Index Scan using idx_transaksi_masuk_barang
+  (cost=0.43..25.50 rows=50 width=200)
+  (actual time=0.021..0.312 rows=50 loops=1)
+
+Execution Time: 0.8 ms  ← dari 85ms jadi 0.8ms! 🚀

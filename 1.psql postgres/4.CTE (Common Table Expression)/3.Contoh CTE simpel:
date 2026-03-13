@@ -1,0 +1,21 @@
+-- Tanpa CTE (susah dibaca)
+SELECT * FROM (
+    SELECT b.nama_barang, SUM(s.stok_tersedia) AS total_stok
+    FROM barang b INNER JOIN stok s ON b.id_barang = s.id_barang
+    GROUP BY b.id_barang, b.nama_barang
+) AS ringkasan_stok
+WHERE total_stok < 50;
+
+-- ✅ Dengan CTE (lebih bersih & mudah dibaca)
+WITH ringkasan_stok AS (
+    SELECT 
+        b.id_barang,
+        b.nama_barang,
+        SUM(s.stok_tersedia) AS total_stok
+    FROM barang b 
+    INNER JOIN stok s ON b.id_barang = s.id_barang
+    GROUP BY b.id_barang, b.nama_barang
+)
+SELECT * FROM ringkasan_stok
+WHERE total_stok < 50
+ORDER BY total_stok ASC;

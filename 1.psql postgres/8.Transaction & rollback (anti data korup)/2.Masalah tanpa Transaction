@@ -1,0 +1,10 @@
+Step 1: INSERT detail_serah_terima ✅
+Step 2: UPDATE stok (kurangi stok)  ✅
+Step 3: UPDATE label_item status    ❌ ERROR! (mati listrik / bug)
+
+Hasil: barang tercatat keluar, tapi stok belum berkurang
+       + label masih status TERSEDIA
+       → DATA KORUP! 💀
+
+       -----------------------
+Transaction memastikan: semua berhasil, atau semua dibatalkan.

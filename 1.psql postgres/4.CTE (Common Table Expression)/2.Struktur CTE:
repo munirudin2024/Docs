@@ -1,0 +1,6 @@
+WITH nama_cte AS (
+    -- query pertama di sini
+    SELECT ...
+)
+SELECT * FROM nama_cte
+WHERE ...; -- pakai hasilnya di sini

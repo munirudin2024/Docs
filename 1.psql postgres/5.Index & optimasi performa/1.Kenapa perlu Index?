@@ -1,0 +1,11 @@
+Bayangin lo cari nama "Budi" di buku telepon:
+--------------------------
+
+Tanpa index = baca dari halaman 1 sampai ketemu "Budi"
+              → makin tebal buku, makin lama
+
+Dengan index = langsung buka halaman yang ada huruf B
+              → langsung ketemu, secepat apapun bukunya
+
+----------------------------------------
+Di PostgreSQL sama persis. Tanpa index, query harus scan semua baris (Sequential Scan). Dengan index, langsung lompat ke data yang dicari (Index Scan).

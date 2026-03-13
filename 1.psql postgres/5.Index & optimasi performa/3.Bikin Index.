@@ -1,0 +1,13 @@
+Index dasar:
+-- Index untuk kolom yang sering di-filter
+CREATE INDEX idx_transaksi_masuk_barang 
+ON transaksi_masuk(id_barang);
+
+CREATE INDEX idx_transaksi_masuk_tanggal 
+ON transaksi_masuk(tanggal_masuk);
+
+CREATE INDEX idx_label_item_status 
+ON label_item(status);
+
+CREATE INDEX idx_label_item_expired 
+ON label_item(tanggal_expired);

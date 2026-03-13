@@ -1,0 +1,18 @@
+SELECT 
+    g.nama_gudang,
+    b.kode_barang,
+    b.nama_barang,
+    s.stok_tersedia,
+    s.stok_reserved,
+    s.stok_quarantine,
+    s.stok_total,
+    b.stok_minimum,
+    CASE 
+        WHEN s.stok_tersedia = 0 THEN '🔴 HABIS'
+        WHEN s.stok_tersedia <= b.stok_minimum THEN '🟡 HAMPIR HABIS'
+        ELSE '🟢 AMAN'
+    END AS status_stok
+FROM stok s
+INNER JOIN barang b  ON s.id_barang = b.id_barang
+INNER JOIN gudang g  ON s.id_gudang = g.id_gudang
+ORDER BY g.nama_gudang, status_stok;

@@ -1,0 +1,22 @@
+Cara pakainya:
+Via psql (terminal):
+
+psql -U postgres -d nama_database -f wh_ppic_schema.sql
+```
+
+**Via pgAdmin:**
+1. Buka pgAdmin → pilih database
+2. Klik kanan → Query Tool
+3. Buka file → Run (F5)
+
+---
+
+### Isi file ini:
+```
+✅ 30 tabel lengkap (urutan sudah benar, parent dulu)
+✅ 20+ index untuk performa
+✅ 4 trigger (auto update stok, alert minimum, alert expired)
+✅ 4 view (stok harian, hampir expired, moving analysis, penerimaan)
+✅ 2 function (cek stok, prediksi habis)
+✅ 1 stored procedure (proses barang masuk)
+✅ Data seed awal (roles, admin, gudang, zona)

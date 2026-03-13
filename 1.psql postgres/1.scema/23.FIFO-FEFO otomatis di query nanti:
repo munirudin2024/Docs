@@ -1,0 +1,11 @@
+-- FEFO: ambil yang expired duluan (area RAW/produksi)
+SELECT * FROM label_item
+WHERE id_barang = 5
+AND status = 'TERSEDIA'
+ORDER BY tanggal_expired ASC;
+
+-- FIFO: ambil yang masuk duluan (area PM/non produksi)
+SELECT * FROM label_item
+WHERE id_barang = 5
+AND status = 'TERSEDIA'
+ORDER BY tanggal_masuk ASC;

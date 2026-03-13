@@ -1,0 +1,19 @@
+CREATE TABLE label_item (
+    id_label SERIAL PRIMARY KEY,
+    no_label INT NOT NULL,           -- 1 sampai 1000, lalu reset
+    id_transaksi_masuk INT NOT NULL, -- dari penerimaan mana
+    id_barang INT NOT NULL,
+    no_batch VARCHAR(50),
+    no_barcode VARCHAR(100) UNIQUE,  -- barcode fisik di label
+    tanggal_masuk DATE,
+    tanggal_expired DATE,
+    jumlah NUMERIC(10,2),
+    satuan VARCHAR(20),
+    id_lokasi INT,
+    status VARCHAR(20) DEFAULT 'TERSEDIA',
+    -- TERSEDIA / TERPAKAI / SEBAGIAN / QUARANTINE
+
+    FOREIGN KEY (id_transaksi_masuk) REFERENCES transaksi_masuk(id_transaksi),
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang),
+    FOREIGN KEY (id_lokasi) REFERENCES lokasi_penyimpanan(id_lokasi)
+);

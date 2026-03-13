@@ -1,0 +1,15 @@
+-- Total nilai transaksi masuk bulan ini
+SELECT 
+    SUM(total_harga) AS total_nilai_masuk
+FROM transaksi_masuk
+WHERE tanggal_masuk >= DATE_TRUNC('month', NOW());
+
+-- Total nilai per supplier
+SELECT 
+    s.nama_supplier,
+    COUNT(tm.id_transaksi) AS total_transaksi,
+    SUM(tm.total_harga) AS total_nilai
+FROM transaksi_masuk tm
+INNER JOIN supplier s ON tm.id_supplier = s.id_supplier
+GROUP BY s.id_supplier, s.nama_supplier
+ORDER BY total_nilai DESC;

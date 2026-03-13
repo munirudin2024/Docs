@@ -1,0 +1,14 @@
+Backend  : Rust (Axum web framework)
+Database : PostgreSQL
+API      : REST JSON
+AUTH     : JWT 
+HOSTING  : Railway / Fly.io
+================================
+Frontend : Leptos (web) atau 
+         : Dioxus (web + mobile)
+        -----------------------
+         : Flutter Web
+         : Flutter (Android + iOS)
+        -----------------------
+         : Next.js (React) web
+         : Next.js bisa PWA

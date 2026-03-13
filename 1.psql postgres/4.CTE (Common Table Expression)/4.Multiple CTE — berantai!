@@ -1,0 +1,50 @@
+-- Laporan lengkap: stok + pemakaian + prediksi habis
+WITH 
+-- CTE 1: hitung total stok per barang
+stok_sekarang AS (
+    SELECT 
+        id_barang,
+        SUM(stok_tersedia) AS total_stok
+    FROM stok
+    GROUP BY id_barang
+),
+
+-- CTE 2: hitung rata-rata pemakaian harian (30 hari terakhir)
+pemakaian_harian AS (
+    SELECT 
+        id_barang,
+        SUM(jumlah_dikirim) / 30.0 AS rata_pakai_per_hari
+    FROM detail_serah_terima
+    WHERE jam_pengambilan >= NOW() - INTERVAL '30 days'
+    GROUP BY id_barang
+),
+
+-- CTE 3: gabungkan & hitung prediksi
+prediksi AS (
+    SELECT 
+        b.kode_barang,
+        b.nama_barang,
+        ss.total_stok,
+        COALESCE(ph.rata_pakai_per_hari, 0) AS rata_pakai_per_hari,
+        CASE 
+            WHEN ph.rata_pakai_per_hari > 0 
+            THEN CURRENT_DATE + (ss.total_stok / ph.rata_pakai_per_hari)::INT
+            ELSE NULL
+        END AS prediksi_habis
+    FROM barang b
+    LEFT JOIN stok_sekarang ss   ON b.id_barang = ss.id_barang
+    LEFT JOIN pemakaian_harian ph ON b.id_barang = ph.id_barang
+)
+
+-- Query final: tampilkan yang mau habis dalam 30 hari
+SELECT 
+    kode_barang,
+    nama_barang,
+    total_stok,
+    ROUND(rata_pakai_per_hari, 2) AS pakai_per_hari,
+    prediksi_habis,
+    (prediksi_habis - CURRENT_DATE) AS sisa_hari
+FROM prediksi
+WHERE prediksi_habis <= CURRENT_DATE + INTERVAL '30 days'
+OR total_stok = 0
+ORDER BY sisa_hari ASC NULLS FIRST;

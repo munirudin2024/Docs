@@ -1,0 +1,11 @@
+CREATE TABLE checkpoint_ppic (
+    id_ppic SERIAL PRIMARY KEY,
+    id_penerimaan INT NOT NULL,
+    nama_petugas VARCHAR(100),
+    no_po_konfirmasi VARCHAR(30),
+    tanggal_cek TIMESTAMP DEFAULT NOW(),
+    status VARCHAR(20),            -- OK / REJECT
+    catatan TEXT,
+
+    FOREIGN KEY (id_penerimaan) REFERENCES penerimaan_barang(id_penerimaan)
+);

@@ -1,0 +1,8 @@
+CREATE TABLE gudang (
+    id_gudang SERIAL PRIMARY KEY,
+    kode_gudang VARCHAR(10) UNIQUE NOT NULL,  -- GDG-01, GDG-02
+    nama_gudang VARCHAR(100) NOT NULL,
+    alamat TEXT,
+    kapasitas INT,                -- total kapasitas (ton/pallet/m3)
+    is_active BOOLEAN DEFAULT TRUE
+);

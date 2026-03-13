@@ -1,0 +1,18 @@
+Bayangin lo butuh jawaban dari query A dulu, baru bisa jalanin query B. Nah subquery itu cara ngelakuinnya dalam 1 statement.
+
+Contoh simpel dulu:
+-- Tanpa subquery (2 langkah manual)
+-- Langkah 1: cari id_supplier PT Maju Jaya
+SELECT id_supplier FROM supplier WHERE nama_supplier = 'PT Maju Jaya';
+-- Hasil: 1
+
+-- Langkah 2: pakai hasilnya
+SELECT * FROM barang WHERE id_supplier = 1;
+
+-- ✅ Dengan subquery (1 langkah)
+SELECT * FROM barang 
+WHERE id_supplier = (
+    SELECT id_supplier 
+    FROM supplier 
+    WHERE nama_supplier = 'PT Maju Jaya'
+);

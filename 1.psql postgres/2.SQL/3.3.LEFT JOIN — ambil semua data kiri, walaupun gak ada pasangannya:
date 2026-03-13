@@ -1,0 +1,16 @@
+-- Lihat semua barang, termasuk yang belum pernah ada transaksi masuk
+SELECT 
+    b.kode_barang,
+    b.nama_barang,
+    COUNT(tm.id_transaksi) AS total_transaksi,
+    SUM(tm.jumlah) AS total_pernah_masuk
+FROM barang b
+LEFT JOIN transaksi_masuk tm ON b.id_barang = tm.id_barang
+GROUP BY b.id_barang, b.kode_barang, b.nama_barang
+ORDER BY total_transaksi DESC;
+
+-----------------------
+Bedanya INNER vs LEFT JOIN:
+
+INNER JOIN = hanya tampilkan barang yang punya transaksi
+LEFT JOIN = tampilkan semua barang, yang belum ada transaksi nilainya NULL

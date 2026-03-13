@@ -1,0 +1,9 @@
+-- Lihat barang beserta nama suppliernya
+SELECT 
+    b.kode_barang,
+    b.nama_barang,
+    b.harga_beli,
+    s.nama_supplier,
+    s.no_telepon
+FROM barang b
+INNER JOIN supplier s ON b.id_supplier = s.id_supplier;

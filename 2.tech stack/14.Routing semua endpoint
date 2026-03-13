@@ -1,0 +1,26 @@
+src/routes/api.rs — Routing semua endpoint
+-----------------
+
+use axum::{
+    routing::{get, post, put, delete},
+    Router,
+};
+use sqlx::PgPool;
+use crate::handlers::barang;
+
+pub fn create_router(pool: PgPool) -> Router {
+    Router::new()
+        // Barang
+        .route("/api/barang",       get(barang::get_all_barang)
+                                   .post(barang::create_barang))
+        .route("/api/barang/:id",   get(barang::get_barang_by_id)
+                                   .put(barang::update_barang)
+                                   .delete(barang::delete_barang))
+
+        // Nanti tambah route lain di sini:
+        // .route("/api/supplier",  get(...).post(...))
+        // .route("/api/stok",      get(...))
+        // .route("/api/penerimaan", get(...).post(...))
+
+        .with_state(pool)
+}

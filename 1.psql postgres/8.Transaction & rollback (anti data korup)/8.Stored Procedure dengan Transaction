@@ -1,0 +1,159 @@
+Ini cara terbaik untuk WH PPIC — logika bisnis disimpan di database, bukan di aplikasi:
+---------------------------------
+
+-- Procedure untuk proses penerimaan barang masuk
+CREATE OR REPLACE PROCEDURE proses_barang_masuk(
+    p_id_penerimaan INT,
+    p_id_barang     INT,
+    p_jumlah        NUMERIC,
+    p_id_gudang     INT,
+    p_id_lokasi     INT,
+    p_tgl_expired   DATE,
+    p_no_batch      VARCHAR,
+    p_harga_satuan  NUMERIC
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_no_transaksi  VARCHAR;
+    v_status_qc     VARCHAR;
+    v_no_label      INT;
+    v_max_label     INT;
+BEGIN
+    -- Cek status QC harus OK dulu
+    SELECT status INTO v_status_qc
+    FROM penerimaan_barang
+    WHERE id_penerimaan = p_id_penerimaan;
+
+    IF v_status_qc != 'QC_OK' THEN
+        RAISE EXCEPTION 'Barang belum di-approve QC! Status: %', v_status_qc;
+    END IF;
+
+    -- Generate no transaksi otomatis
+    v_no_transaksi := 'TM-' || TO_CHAR(NOW(), 'YYYYMMDD') || 
+                      '-' || LPAD(p_id_penerimaan::TEXT, 4, '0');
+
+    -- Generate no label (1-1000, reset kalau sudah 1000)
+    SELECT COALESCE(MAX(no_label), 0) INTO v_max_label
+    FROM label_item;
+    
+    v_no_label := CASE 
+        WHEN v_max_label >= 1000 THEN 1 
+        ELSE v_max_label + 1 
+    END;
+
+    -- Insert transaksi masuk
+    INSERT INTO transaksi_masuk (
+        no_transaksi, id_penerimaan, id_barang,
+        id_supplier, jumlah, harga_satuan,
+        tanggal_expired, no_batch,
+        id_gudang, id_lokasi
+    )
+    SELECT 
+        v_no_transaksi, p_id_penerimaan, p_id_barang,
+        id_supplier, p_jumlah, p_harga_satuan,
+        p_tgl_expired, p_no_batch,
+        p_id_gudang, p_id_lokasi
+    FROM penerimaan_barang
+    WHERE id_penerimaan = p_id_penerimaan;
+
+    -- Insert label item
+    INSERT INTO label_item (
+        no_label, id_barang, no_batch,
+        tanggal_expired, jumlah, id_lokasi, status
+    )
+    VALUES (
+        v_no_label, p_id_barang, p_no_batch,
+        p_tgl_expired, p_jumlah, p_id_lokasi, 'TERSEDIA'
+    );
+
+    -- Update stok (trigger akan jalan otomatis)
+    -- tapi kita bisa juga update manual di sini sebagai backup
+    INSERT INTO stok (id_barang, id_gudang, id_lokasi, stok_tersedia)
+    VALUES (p_id_barang, p_id_gudang, p_id_lokasi, p_jumlah)
+    ON CONFLICT (id_barang, id_gudang, id_lokasi)
+    DO UPDATE SET
+        stok_tersedia = stok.stok_tersedia + p_jumlah,
+        updated_at = NOW();
+
+    -- Update status penerimaan
+    UPDATE penerimaan_barang
+    SET status = 'WH_MASUK'
+    WHERE id_penerimaan = p_id_penerimaan;
+
+    RAISE NOTICE 'Barang masuk berhasil! No: %, Label: %', 
+        v_no_transaksi, v_no_label;
+
+-- Kalau ada error apapun, semua otomatis rollback
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE EXCEPTION 'Gagal proses barang masuk: %', SQLERRM;
+END;
+$$;
+
+-- Cara pakai:
+CALL proses_barang_masuk(
+    1,          -- id_penerimaan
+    5,          -- id_barang
+    100,        -- jumlah
+    1,          -- id_gudang
+    10,         -- id_lokasi
+    '2025-12-31', -- tgl_expired
+    'BATCH-001',  -- no_batch
+    15000         -- harga_satuan
+);
+```
+
+---
+
+## Isolation Level — Hindari Race Condition
+
+Race condition = 2 user akses data yang sama bersamaan:
+```
+User A baca stok: 50 KG
+User B baca stok: 50 KG  (bersamaan!)
+User A ambil 50 KG → stok jadi 0
+User B ambil 50 KG → stok jadi -50 ← BAHAYA!
+
+------------------------------
+Solusinya pakai SELECT FOR UPDATE:
+-----------------------------------
+
+BEGIN;
+
+  -- Kunci baris stok dulu sebelum diproses
+  -- User lain harus nunggu sampai transaction ini selesai
+  SELECT stok_tersedia 
+  FROM stok 
+  WHERE id_barang = 5 
+  AND id_gudang = 1
+  FOR UPDATE;  -- ← kunci di sini!
+
+  -- Sekarang aman, tidak ada yang bisa ubah baris ini
+  UPDATE stok
+  SET stok_tersedia = stok_tersedia - 50
+  WHERE id_barang = 5
+  AND id_gudang = 1;
+
+COMMIT;  -- kunci dilepas setelah commit
+```
+
+---
+
+## Ringkasan:
+```
+BEGIN           → mulai transaction
+COMMIT          → simpan semua perubahan
+ROLLBACK        → batalkan semua perubahan
+
+SAVEPOINT       → tandai titik tertentu dalam transaction
+ROLLBACK TO     → rollback hanya sampai savepoint
+
+FOR UPDATE      → kunci baris supaya tidak bisa diubah
+                  user lain (anti race condition)
+
+RAISE EXCEPTION → paksa rollback dengan pesan error
+RAISE NOTICE    → log pesan tanpa rollback
+
+Stored Procedure → paket logika bisnis di database,
+                   transaction otomatis terjaga

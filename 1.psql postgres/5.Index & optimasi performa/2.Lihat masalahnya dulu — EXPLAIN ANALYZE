@@ -1,0 +1,24 @@
+Sebelum optimasi, lo harus tau dulu query mana yang lambat:
+-----------------------------
+
+-- Tambahkan EXPLAIN ANALYZE di depan query
+EXPLAIN ANALYZE
+SELECT * FROM transaksi_masuk
+WHERE id_barang = 5
+AND tanggal_masuk >= '2024-01-01';
+```
+
+### Baca hasilnya:
+```
+Seq Scan on transaksi_masuk  
+  (cost=0.00..1250.00 rows=50 width=200)  
+  (actual time=0.043..85.231 rows=50 loops=1)
+  Filter: (id_barang = 5)
+  Rows Removed by Filter: 99950  ← 99.950 baris discarded!
+
+Planning Time: 0.5 ms
+Execution Time: 85.4 ms  ← LAMBAT!
+
+-------------------------------
+Seq Scan = tanda bahaya, dia baca semua baris!
+Rows Removed by Filter = makin besar makin boros.

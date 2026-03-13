@@ -1,0 +1,10 @@
+-- Barang yang stoknya di bawah rata-rata
+SELECT 
+    b.kode_barang,
+    b.nama_barang,
+    s.stok_tersedia
+FROM barang b
+INNER JOIN stok s ON b.id_barang = s.id_barang
+WHERE s.stok_tersedia < (
+    SELECT AVG(stok_tersedia) FROM stok
+);

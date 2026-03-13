@@ -1,0 +1,32 @@
+CREATE TABLE purchase_order (
+    id_po SERIAL PRIMARY KEY,
+    no_po VARCHAR(30) UNIQUE NOT NULL,
+    id_supplier INT NOT NULL,
+    tanggal_po DATE DEFAULT NOW(),
+    tanggal_dibutuhkan DATE,
+    status VARCHAR(20) DEFAULT 'DRAFT',
+    -- DRAFT → APPROVED → SENT → PARTIAL → RECEIVED → CLOSED / CANCELLED
+    total_nilai NUMERIC(15,2),
+    dibuat_oleh INT,
+    approved_oleh INT,
+    catatan TEXT,
+
+    FOREIGN KEY (id_supplier) REFERENCES supplier(id_supplier),
+    FOREIGN KEY (dibuat_oleh) REFERENCES users(id_user),
+    FOREIGN KEY (approved_oleh) REFERENCES users(id_user)
+);
+
+CREATE TABLE detail_po (
+    id_detail SERIAL PRIMARY KEY,
+    id_po INT NOT NULL,
+    id_barang INT NOT NULL,
+    jumlah_order NUMERIC(10,2),
+    jumlah_diterima NUMERIC(10,2) DEFAULT 0,  -- update saat barang datang
+    harga_satuan NUMERIC(15,2),
+    total NUMERIC(15,2) GENERATED ALWAYS AS (jumlah_order * harga_satuan) STORED,
+    satuan VARCHAR(20),
+    catatan TEXT,
+
+    FOREIGN KEY (id_po) REFERENCES purchase_order(id_po),
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang)
+);

@@ -1,0 +1,16 @@
+CREATE TABLE detail_permintaan (
+    id_detail SERIAL PRIMARY KEY,
+    id_permintaan INT NOT NULL,
+    id_barang INT NOT NULL,
+    jumlah_minta NUMERIC(10,2),
+    satuan VARCHAR(20),
+    catatan TEXT,
+
+    -- diisi WH saat proses
+    jumlah_approved NUMERIC(10,2),   -- bisa beda kalau stok kurang
+    id_substitusi INT,               -- kalau item habis, diganti item apa
+
+    FOREIGN KEY (id_permintaan) REFERENCES permintaan_barang(id_permintaan),
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang),
+    FOREIGN KEY (id_substitusi) REFERENCES barang(id_barang)
+);

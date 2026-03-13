@@ -1,0 +1,43 @@
+-- Master data
+CREATE INDEX idx_barang_kode ON barang(kode_barang);
+CREATE INDEX idx_barang_kategori ON barang(kategori);
+CREATE INDEX idx_supplier_kode ON supplier(kode_supplier);
+
+-- Lokasi
+CREATE INDEX idx_zona_gudang ON zona_gudang(id_gudang);
+CREATE INDEX idx_lokasi_zona ON lokasi_penyimpanan(id_zona);
+CREATE INDEX idx_lokasi_occupied ON lokasi_penyimpanan(is_occupied);
+
+-- Transaksi masuk
+CREATE INDEX idx_trx_masuk_barang ON transaksi_masuk(id_barang);
+CREATE INDEX idx_trx_masuk_supplier ON transaksi_masuk(id_supplier);
+CREATE INDEX idx_trx_masuk_tanggal ON transaksi_masuk(tanggal_masuk DESC);
+CREATE INDEX idx_trx_masuk_penerimaan ON transaksi_masuk(id_penerimaan);
+
+-- Label item (paling sering diquery)
+CREATE INDEX idx_label_barang_status 
+ON label_item(id_barang, status);
+
+CREATE INDEX idx_label_fefo 
+ON label_item(id_barang, tanggal_expired)
+WHERE status = 'TERSEDIA';
+
+CREATE INDEX idx_label_fifo 
+ON label_item(id_barang, tanggal_masuk)
+WHERE status = 'TERSEDIA';
+
+CREATE INDEX idx_label_barcode ON label_item(no_barcode);
+
+-- Stok
+CREATE INDEX idx_stok_barang ON stok(id_barang);
+CREATE INDEX idx_stok_barang_gudang ON stok(id_barang, id_gudang);
+
+-- Permintaan & serah terima
+CREATE INDEX idx_permintaan_status ON permintaan_barang(status);
+CREATE INDEX idx_permintaan_dept ON permintaan_barang(departemen);
+CREATE INDEX idx_serah_terima_tgl 
+ON detail_serah_terima(jam_pengambilan DESC);
+
+-- Alert
+CREATE INDEX idx_alert_status ON notifikasi_alert(status);
+CREATE INDEX idx_alert_barang ON notifikasi_alert(id_barang);

@@ -1,0 +1,10 @@
+Bayangin lo punya query panjang yang sering dipakai berulang kali. Daripada nulis ulang terus, simpan jadi VIEW — tinggal panggil namanya.
+-------------------
+
+Tanpa VIEW:
+  Developer A nulis query 50 baris → beda sedikit tiap orang
+  Developer B nulis query 50 baris → rawan salah
+  Developer C nulis query 50 baris → susah di-maintain
+
+Dengan VIEW:
+  Semua cukup: SELECT * FROM vw_stok_harian

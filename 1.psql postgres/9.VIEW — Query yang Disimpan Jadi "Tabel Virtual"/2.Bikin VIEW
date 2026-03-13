@@ -1,0 +1,25 @@
+View stok harian:
+---------------
+CREATE VIEW vw_stok_harian AS
+SELECT 
+    g.nama_gudang,
+    z.nama_zona,
+    b.kode_barang,
+    b.nama_barang,
+    b.satuan,
+    s.stok_tersedia,
+    s.stok_reserved,
+    s.stok_quarantine,
+    s.stok_total,
+    b.stok_minimum,
+    CASE 
+        WHEN s.stok_tersedia = 0                     THEN 'HABIS'
+        WHEN s.stok_tersedia <= b.stok_minimum       THEN 'HAMPIR HABIS'
+        WHEN s.stok_tersedia <= b.stok_minimum * 1.5 THEN 'PERHATIAN'
+        ELSE                                              'AMAN'
+    END AS status_stok
+FROM stok s
+INNER JOIN barang b              ON s.id_barang = b.id_barang
+INNER JOIN gudang g              ON s.id_gudang = g.id_gudang
+INNER JOIN lokasi_penyimpanan lp ON s.id_lokasi = lp.id_lokasi
+INNER JOIN zona_gudang z         ON lp.id_zona = z.id_zona;

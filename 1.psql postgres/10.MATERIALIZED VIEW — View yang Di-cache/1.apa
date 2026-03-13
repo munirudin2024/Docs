@@ -1,0 +1,34 @@
+MATERIALIZED VIEW = hasilnya disimpan, query hanya jalan saat di-refresh.
+-----------------------------
+
+Cocok untuk laporan berat yang datanya tidak perlu realtime:
+
+
+-- Bikin materialized view
+CREATE MATERIALIZED VIEW mvw_laporan_bulanan AS
+SELECT 
+    DATE_TRUNC('month', tm.tanggal_masuk) AS bulan,
+    s.nama_supplier,
+    b.kategori,
+    COUNT(*)                AS total_transaksi,
+    SUM(tm.jumlah)          AS total_qty,
+    SUM(tm.total_harga)     AS total_nilai
+FROM transaksi_masuk tm
+INNER JOIN barang b   ON tm.id_barang   = b.id_barang
+INNER JOIN supplier s ON tm.id_supplier = s.id_supplier
+GROUP BY 1, 2, 3
+ORDER BY 1 DESC;
+
+-- Refresh setiap malam jam 00:00 (via pg_cron atau scheduler)
+REFRESH MATERIALIZED VIEW mvw_laporan_bulanan;
+
+-- Pakai index di materialized view juga bisa!
+CREATE INDEX idx_mvw_laporan_bulan ON mvw_laporan_bulanan(bulan);
+```
+
+---
+
+## STORED PROCEDURE vs FUNCTION
+```
+FUNCTION        → mengembalikan nilai, bisa dipakai di SELECT
+PROCEDURE       → menjalankan aksi, dipanggil dengan CALL

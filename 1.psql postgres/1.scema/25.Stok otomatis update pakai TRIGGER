@@ -1,0 +1,33 @@
+-- Trigger saat barang MASUK
+CREATE OR REPLACE FUNCTION update_stok_masuk()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO stok (id_barang, id_gudang, id_lokasi, stok_tersedia)
+    VALUES (NEW.id_barang, NEW.id_gudang, NEW.id_lokasi, NEW.jumlah)
+    ON CONFLICT (id_barang, id_gudang, id_lokasi)
+    DO UPDATE SET 
+        stok_tersedia = stok.stok_tersedia + NEW.jumlah,
+        updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_stok_masuk
+AFTER INSERT ON transaksi_masuk
+FOR EACH ROW EXECUTE FUNCTION update_stok_masuk();
+
+-- Trigger saat barang KELUAR
+CREATE OR REPLACE FUNCTION update_stok_keluar()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE stok SET
+        stok_tersedia = stok_tersedia - NEW.jumlah_dikirim,
+        updated_at = NOW()
+    WHERE id_barang = NEW.id_barang;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_stok_keluar
+AFTER INSERT ON detail_serah_terima
+FOR EACH ROW EXECUTE FUNCTION update_stok_keluar();

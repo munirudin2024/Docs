@@ -1,0 +1,12 @@
+-- Tampilkan barang + total stok + total pernah keluar
+SELECT 
+    b.kode_barang,
+    b.nama_barang,
+    -- subquery langsung di kolom
+    (SELECT SUM(stok_tersedia) 
+     FROM stok 
+     WHERE id_barang = b.id_barang) AS stok_sekarang,
+    (SELECT SUM(jumlah_dikirim) 
+     FROM detail_serah_terima 
+     WHERE id_barang = b.id_barang) AS total_pernah_keluar
+FROM barang b;
