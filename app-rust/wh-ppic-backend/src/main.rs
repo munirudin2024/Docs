@@ -39,6 +39,7 @@ async fn main() {
 
 async fn run_api(pool: sqlx::PgPool) {
     let app = routes::api::create_router(pool);
+
     let host = std::env::var("HOST").unwrap_or("0.0.0.0".to_string());
     let port = std::env::var("PORT").unwrap_or("8080".to_string());
     let addr = format!("{}:{}", host, port);

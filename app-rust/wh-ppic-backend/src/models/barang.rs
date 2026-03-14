@@ -10,7 +10,7 @@ pub struct Barang {
     pub nama_barang:  String,
     pub kategori:     Option<String>,
     pub satuan:       Option<String>,
-    pub harga_beli:   Option<BigDecimal>,  // ← ganti f64
+    pub harga_beli:   Option<BigDecimal>,
     pub stok_minimum: Option<i32>,
     pub is_active:    Option<bool>,
     pub created_at:   Option<NaiveDateTime>,
@@ -22,7 +22,7 @@ pub struct CreateBarang {
     pub nama_barang:  String,
     pub kategori:     Option<String>,
     pub satuan:       Option<String>,
-    pub harga_beli:   Option<BigDecimal>,  // ← ganti f64
+    pub harga_beli:   Option<BigDecimal>,
     pub stok_minimum: Option<i32>,
     pub id_supplier:  Option<i32>,
 }
@@ -30,7 +30,7 @@ pub struct CreateBarang {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateBarang {
     pub nama_barang:  Option<String>,
-    pub harga_beli:   Option<BigDecimal>,  // ← ganti f64
+    pub harga_beli:   Option<BigDecimal>,
     pub stok_minimum: Option<i32>,
     pub is_active:    Option<bool>,
 }

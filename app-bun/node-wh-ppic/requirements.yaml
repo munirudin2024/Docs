@@ -1,0 +1,17 @@
+packages:
+  "framer-motion": "Page transitions and fluid animations for glassmorphism panels"
+  "recharts": "Dashboard analytics charts and data visualization"
+  "date-fns": "Human-readable date formatting for stock and alerts"
+  "@hookform/resolvers": "Zod validation with react-hook-form"
+  "react-hook-form": "Form state management"
+  "zod": "Schema validation for forms"
+
+images:
+  - path: "artifacts/wh-ppic/public/images/login-bg.png"
+    description: "Abstract modern warehouse interior, dark navy blue lighting, glowing neon blue accents, subtle depth of field, high quality premium tech aesthetic"
+    aspect_ratio: "16:9"
+
+notes:
+  - Application uses mock authentication stored in localStorage.
+  - Users and Alerts features use fully-featured mock CRUD as backend API doesn't support them yet.
+  - Relies on generated API hooks from @workspace/api-client-react.

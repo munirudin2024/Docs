@@ -1,8 +1,14 @@
 use axum::{routing::get, Router};
 use sqlx::PgPool;
+use tower_http::cors::{Any, CorsLayer};
 use crate::handlers::{barang, supplier, stok};
 
 pub fn create_router(pool: PgPool) -> Router {
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
+
     Router::new()
         // Barang
         .route("/api/barang",     get(barang::get_all).post(barang::create))
@@ -17,5 +23,6 @@ pub fn create_router(pool: PgPool) -> Router {
         .route("/api/stok",          get(stok::get_stok_harian))
         .route("/api/stok/expired",  get(stok::get_hampir_expired))
 
+        .layer(cors)
         .with_state(pool)
 }

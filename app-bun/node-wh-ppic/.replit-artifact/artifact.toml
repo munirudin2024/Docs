@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "WH-PPIC Warehouse Management"
+version = "1.0.0"
+id = "artifacts/wh-ppic"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 25483
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/wh-ppic run dev"
+
+[services.env]
+PORT = "25483"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/wh-ppic", "run", "build"]
+publicDir = "artifacts/wh-ppic/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

@@ -1,0 +1,199 @@
+
+> @workspace/wh-ppic@0.0.0 dev
+> vite --config vite.config.ts --host 0.0.0.0
+
+Port 5173 is in use, trying another one...
+
+  VITE v6.4.1  ready in 609 ms
+
+  ➜  Local:   http://localhost:5174/
+  ➜  Network: http://10.0.1.5:5174/
+  ➜  Network: http://172.19.0.1:5174/
+9:13:46 AM [vite] (client) Pre-transform error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Stok.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Stok.tsx:2:48
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useState } from "react";
+  19 |  import { useListStok, useListStokExpired } from "@workspace/api-client-react";
+     |                                                   ^
+  20 |  import { Card } from "@/components/ui/card";
+  21 |  import { Button } from "@/components/ui/button";
+9:13:46 AM [vite] (client) Pre-transform error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Dashboard.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Dashboard.tsx:1:80
+  16 |  }
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useListStok, useListBarang, useListSupplier, useListStokExpired } from "@workspace/api-client-react";
+     |                                                                                   ^
+  19 |  import { Package, Truck, AlertTriangle, ShieldCheck, Clock, Layers } from "lucide-react";
+  20 |  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+9:13:46 AM [vite] (client) Pre-transform error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Barang.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Barang.tsx:2:81
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useState } from "react";
+  19 |  import { useListBarang, useCreateBarang, useUpdateBarang, useDeleteBarang } from "@workspace/api-client-react";
+     |                                                                                    ^
+  20 |  import { Plus, Search, Edit2, Trash2, Filter } from "lucide-react";
+  21 |  import { Button } from "@/components/ui/button";
+9:13:46 AM [vite] (client) Pre-transform error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Supplier.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Supplier.tsx:2:70
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useState } from "react";
+  19 |  import { useListSupplier, useCreateSupplier, useUpdateSupplier } from "@workspace/api-client-react";
+     |                                                                         ^
+  20 |  import { Plus, Search, Edit2, MapPin, Phone, Mail, Globe, LayoutGrid, List } from "lucide-react";
+  21 |  import { Button } from "@/components/ui/button";
+9:13:48 AM [vite] Internal server error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Barang.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Barang.tsx:2:81
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useState } from "react";
+  19 |  import { useListBarang, useCreateBarang, useUpdateBarang, useDeleteBarang } from "@workspace/api-client-react";
+     |                                                                                    ^
+  20 |  import { Plus, Search, Edit2, Trash2, Filter } from "lucide-react";
+  21 |  import { Button } from "@/components/ui/button";
+      at TransformPluginContext._formatLog (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at normalizeUrl (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+      at async Promise.all (index 4)
+      at async TransformPluginContext.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+9:13:48 AM [vite] Internal server error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Supplier.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Supplier.tsx:2:70
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useState } from "react";
+  19 |  import { useListSupplier, useCreateSupplier, useUpdateSupplier } from "@workspace/api-client-react";
+     |                                                                         ^
+  20 |  import { Plus, Search, Edit2, MapPin, Phone, Mail, Globe, LayoutGrid, List } from "lucide-react";
+  21 |  import { Button } from "@/components/ui/button";
+      at TransformPluginContext._formatLog (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at normalizeUrl (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+      at async Promise.all (index 4)
+      at async TransformPluginContext.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+9:13:48 AM [vite] Internal server error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Dashboard.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Dashboard.tsx:1:80
+  16 |  }
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useListStok, useListBarang, useListSupplier, useListStokExpired } from "@workspace/api-client-react";
+     |                                                                                   ^
+  19 |  import { Package, Truck, AlertTriangle, ShieldCheck, Clock, Layers } from "lucide-react";
+  20 |  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+      at TransformPluginContext._formatLog (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at normalizeUrl (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+      at async Promise.all (index 3)
+      at async TransformPluginContext.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+9:13:49 AM [vite] Internal server error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Stok.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Stok.tsx:2:48
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useState } from "react";
+  19 |  import { useListStok, useListStokExpired } from "@workspace/api-client-react";
+     |                                                   ^
+  20 |  import { Card } from "@/components/ui/card";
+  21 |  import { Button } from "@/components/ui/button";
+      at TransformPluginContext._formatLog (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at normalizeUrl (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+      at async Promise.all (index 4)
+      at async TransformPluginContext.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+9:13:51 AM [vite] Internal server error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Dashboard.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Dashboard.tsx:1:80
+  16 |  }
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useListStok, useListBarang, useListSupplier, useListStokExpired } from "@workspace/api-client-react";
+     |                                                                                   ^
+  19 |  import { Package, Truck, AlertTriangle, ShieldCheck, Clock, Layers } from "lucide-react";
+  20 |  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+      at TransformPluginContext._formatLog (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at normalizeUrl (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+      at async Promise.all (index 3)
+      at async TransformPluginContext.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+9:13:52 AM [vite] Internal server error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Supplier.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Supplier.tsx:2:70
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useState } from "react";
+  19 |  import { useListSupplier, useCreateSupplier, useUpdateSupplier } from "@workspace/api-client-react";
+     |                                                                         ^
+  20 |  import { Plus, Search, Edit2, MapPin, Phone, Mail, Globe, LayoutGrid, List } from "lucide-react";
+  21 |  import { Button } from "@/components/ui/button";
+      at TransformPluginContext._formatLog (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at normalizeUrl (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+      at async Promise.all (index 4)
+      at async TransformPluginContext.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+9:13:52 AM [vite] Internal server error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Barang.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Barang.tsx:2:81
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useState } from "react";
+  19 |  import { useListBarang, useCreateBarang, useUpdateBarang, useDeleteBarang } from "@workspace/api-client-react";
+     |                                                                                    ^
+  20 |  import { Plus, Search, Edit2, Trash2, Filter } from "lucide-react";
+  21 |  import { Button } from "@/components/ui/button";
+      at TransformPluginContext._formatLog (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at normalizeUrl (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+      at async Promise.all (index 4)
+      at async TransformPluginContext.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
+9:13:52 AM [vite] Internal server error: Failed to resolve import "@workspace/api-client-react" from "src/pages/Stok.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/Docs/app-bun/node-wh-ppic/src/pages/Stok.tsx:2:48
+  17 |  var _s = $RefreshSig$();
+  18 |  import { useState } from "react";
+  19 |  import { useListStok, useListStokExpired } from "@workspace/api-client-react";
+     |                                                   ^
+  20 |  import { Card } from "@/components/ui/card";
+  21 |  import { Button } from "@/components/ui/button";
+      at TransformPluginContext._formatLog (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41)
+      at TransformPluginContext.error (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16)
+      at normalizeUrl (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+      at async Promise.all (index 4)
+      at async TransformPluginContext.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18)
+      at async loadAndTransform (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27)
+      at async viteTransformMiddleware (file:///workspaces/Docs/app-bun/node-wh-ppic/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:37254:24)
